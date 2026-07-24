@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { apiFetch } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { TaskForm, type TaskFormValues } from '../components/TaskForm';
@@ -56,6 +57,9 @@ export function TasksPage() {
         <h1 className="text-2xl font-bold text-slate-900">Todo Scheduler</h1>
         <div className="flex items-center gap-3 text-sm text-slate-600">
           <span>{user?.email}</span>
+          <Link to="/api-keys" className="underline">
+            API-avaimet
+          </Link>
           <button onClick={logout} className="underline">
             Kirjaudu ulos
           </button>

@@ -8,7 +8,10 @@ export function getDb(): Promise<typeof mongoose> {
     if (!uri) {
       throw new Error('MONGODB_URI is not set');
     }
-    connectPromise = mongoose.connect(uri);
+    connectPromise = mongoose.connect(uri).catch((err) => {
+      connectPromise = null;
+      throw err;
+    });
   }
   return connectPromise;
 }

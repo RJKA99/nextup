@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { TaskModel, TASK_STATUSES } from '../models/Task.js';
-import { requireAuth } from '../middleware/auth.js';
+import { authenticate } from '../middleware/apiAuth.js';
 import { rankTasks } from '../utils/priority.js';
 
 export const tasksRouter = Router();
-tasksRouter.use(requireAuth);
+tasksRouter.use(authenticate);
 
 function parseTaskInput(body: unknown) {
   const { title, description, estimatedMinutes, relevance, deadline } = (body ?? {}) as Record<string, unknown>;
