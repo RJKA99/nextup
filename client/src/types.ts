@@ -1,4 +1,5 @@
 export type TaskStatus = 'todo' | 'in_progress' | 'done';
+export type TaskSource = 'user' | 'agent';
 
 export interface Task {
   _id: string;
@@ -9,6 +10,10 @@ export interface Task {
   deadline: string | null;
   status: TaskStatus;
   score: number;
+  createdVia: TaskSource;
+  actualMinutes: number | null;
+  estimateRating: number | null;
+  estimateFeedback: string;
   createdAt: string;
   updatedAt: string;
 }

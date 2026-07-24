@@ -24,12 +24,15 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     keyDoc.lastUsedAt = new Date();
     await keyDoc.save();
     req.userId = keyDoc.userId.toString();
+    req.authMethod = 'apikey';
+    req.apiKeyId = keyDoc._id.toString();
     return next();
   }
 
   try {
     const payload = jwt.verify(token, getJwtSecret()) as jwt.JwtPayload;
     req.userId = payload.sub as string;
+    req.authMethod = 'jwt';
     next();
   } catch {
     return res.status(401).json({ error: 'Invalid or expired token' });

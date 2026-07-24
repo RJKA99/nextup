@@ -99,5 +99,21 @@ server.registerTool(
   }
 );
 
+server.registerTool(
+  'get_estimate_feedback',
+  {
+    title: 'Get estimate feedback',
+    description:
+      "Get the user's feedback on past tasks you created: how you rated the task's duration/relevance " +
+      "(estimatedMinutes, relevance) against what actually happened (actualMinutes) and the user's " +
+      'estimateRating (1-5) and comments. Use this to calibrate future estimates.',
+    inputSchema: {},
+  },
+  async () => {
+    const res = await apiRequest<{ feedback: unknown[] }>('/tasks/feedback');
+    return textResult(res.feedback);
+  }
+);
+
 const transport = new StdioServerTransport();
 await server.connect(transport);

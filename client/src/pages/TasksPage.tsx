@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { TaskForm, type TaskFormValues } from '../components/TaskForm';
 import { TaskList } from '../components/TaskList';
 import { NextTaskCard } from '../components/NextTaskCard';
+import type { FeedbackValues } from '../components/TaskFeedbackForm';
 import type { Task, TaskStatus } from '../types';
 
 export function TasksPage() {
@@ -51,6 +52,11 @@ export function TasksPage() {
     await refresh();
   }
 
+  async function handleFeedback(id: string, values: FeedbackValues) {
+    await apiFetch(`/tasks/${id}`, { method: 'PATCH', body: JSON.stringify(values) });
+    await refresh();
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
@@ -77,7 +83,12 @@ export function TasksPage() {
       {loading && <p className="text-slate-500">Ladataan…</p>}
       {error && <p className="text-red-600">{error}</p>}
       {!loading && !error && (
-        <TaskList tasks={tasks} onStatusChange={handleStatusChange} onDelete={handleDelete} />
+        <TaskList
+          tasks={tasks}
+          onStatusChange={handleStatusChange}
+          onDelete={handleDelete}
+          onFeedback={handleFeedback}
+        />
       )}
     </div>
   );

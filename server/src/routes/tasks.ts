@@ -46,6 +46,18 @@ tasksRouter.get('/', async (req, res) => {
   res.json({ tasks: ranked });
 });
 
+tasksRouter.get('/feedback', async (req, res) => {
+  const tasks = await TaskModel.find({
+    userId: req.userId,
+    createdVia: 'agent',
+    estimateRating: { $ne: null },
+  })
+    .select('title estimatedMinutes actualMinutes relevance estimateRating estimateFeedback createdAt')
+    .sort({ updatedAt: -1 })
+    .lean();
+  res.json({ feedback: tasks });
+});
+
 tasksRouter.get('/next', async (req, res) => {
   const tasks = await TaskModel.find({ userId: req.userId, status: { $ne: 'done' } }).lean();
   const [top] = rankTasks(tasks);
@@ -56,7 +68,12 @@ tasksRouter.post('/', async (req, res) => {
   const parsed = parseTaskInput(req.body);
   if ('error' in parsed) return res.status(400).json({ error: parsed.error });
 
-  const task = await TaskModel.create({ ...parsed.value, userId: req.userId });
+  const task = await TaskModel.create({
+    ...parsed.value,
+    userId: req.userId,
+    createdVia: req.authMethod === 'apikey' ? 'agent' : 'user',
+    createdByApiKeyId: req.authMethod === 'apikey' ? req.apiKeyId : null,
+  });
   res.status(201).json({ task });
 });
 
@@ -64,7 +81,8 @@ tasksRouter.patch('/:id', async (req, res) => {
   const task = await TaskModel.findOne({ _id: req.params.id, userId: req.userId });
   if (!task) return res.status(404).json({ error: 'Task not found' });
 
-  const { title, description, estimatedMinutes, relevance, deadline, status } = req.body ?? {};
+  const { title, description, estimatedMinutes, relevance, deadline, status, actualMinutes, estimateRating, estimateFeedback } =
+    req.body ?? {};
 
   if (title !== undefined) {
     if (typeof title !== 'string' || title.trim().length === 0) {
@@ -104,6 +122,21 @@ tasksRouter.patch('/:id', async (req, res) => {
     }
     task.status = status;
   }
+  if (actualMinutes !== undefined) {
+    const minutes = Number(actualMinutes);
+    if (!Number.isFinite(minutes) || minutes < 1) {
+      return res.status(400).json({ error: 'actualMinutes must be a positive number' });
+    }
+    task.actualMinutes = minutes;
+  }
+  if (estimateRating !== undefined) {
+    const rating = Number(estimateRating);
+    if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+      return res.status(400).json({ error: 'estimateRating must be a number between 1 and 5' });
+    }
+    task.estimateRating = rating;
+  }
+  if (estimateFeedback !== undefined) task.estimateFeedback = String(estimateFeedback);
 
   await task.save();
   res.json({ task });
