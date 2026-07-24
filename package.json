@@ -2,6 +2,7 @@
   "name": "todo-scheduler",
   "private": true,
   "version": "0.1.0",
+  "type": "module",
   "workspaces": ["client", "server"],
   "scripts": {
     "dev": "concurrently -n server,client -c blue,green \"npm run dev:server\" \"npm run dev:client\"",
