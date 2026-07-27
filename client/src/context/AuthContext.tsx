@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { apiFetch, getToken, setToken } from '../api/client';
+import { apiFetch } from '../api/client';
 import type { AuthUser } from '../types';
 
 interface AuthContextValue {
@@ -7,7 +7,7 @@ interface AuthContextValue {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -17,36 +17,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!getToken()) {
-      setLoading(false);
-      return;
-    }
     apiFetch<{ user: AuthUser }>('/auth/me')
       .then((res) => setUser(res.user))
-      .catch(() => setToken(null))
+      .catch(() => setUser(null))
       .finally(() => setLoading(false));
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await apiFetch<{ token: string; user: AuthUser }>('/auth/login', {
+    const res = await apiFetch<{ user: AuthUser }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    setToken(res.token);
     setUser(res.user);
   }, []);
 
   const register = useCallback(async (email: string, password: string, name?: string) => {
-    const res = await apiFetch<{ token: string; user: AuthUser }>('/auth/register', {
+    const res = await apiFetch<{ user: AuthUser }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password, name }),
     });
-    setToken(res.token);
     setUser(res.user);
   }, []);
 
-  const logout = useCallback(() => {
-    setToken(null);
+  const logout = useCallback(async () => {
+    await apiFetch('/auth/logout', { method: 'POST' });
     setUser(null);
   }, []);
 

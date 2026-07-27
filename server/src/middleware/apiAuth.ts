@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { ApiKeyModel } from '../models/ApiKey.js';
 import { hashApiKey, looksLikeApiKey } from '../utils/apiKey.js';
+import { AUTH_COOKIE_NAME } from '../utils/cookies.js';
 
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
@@ -11,13 +12,10 @@ function getJwtSecret(): string {
 
 export async function authenticate(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
-  const token = header?.startsWith('Bearer ') ? header.slice('Bearer '.length) : null;
-  if (!token) {
-    return res.status(401).json({ error: 'Missing authorization token' });
-  }
+  const bearerToken = header?.startsWith('Bearer ') ? header.slice('Bearer '.length) : null;
 
-  if (looksLikeApiKey(token)) {
-    const keyDoc = await ApiKeyModel.findOne({ keyHash: hashApiKey(token) });
+  if (bearerToken && looksLikeApiKey(bearerToken)) {
+    const keyDoc = await ApiKeyModel.findOne({ keyHash: hashApiKey(bearerToken) });
     if (!keyDoc) {
       return res.status(401).json({ error: 'Invalid API key' });
     }
@@ -29,12 +27,17 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     return next();
   }
 
+  const cookieToken = req.cookies?.[AUTH_COOKIE_NAME];
+  if (!cookieToken) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
   try {
-    const payload = jwt.verify(token, getJwtSecret()) as jwt.JwtPayload;
+    const payload = jwt.verify(cookieToken, getJwtSecret()) as jwt.JwtPayload;
     req.userId = payload.sub as string;
     req.authMethod = 'jwt';
     next();
   } catch {
-    return res.status(401).json({ error: 'Invalid or expired token' });
+    return res.status(401).json({ error: 'Invalid or expired session' });
   }
 }

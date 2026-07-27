@@ -2,6 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { UserModel } from '../models/User.js';
 import { signToken, requireAuth } from '../middleware/auth.js';
+import { setAuthCookie, clearAuthCookie } from '../utils/cookies.js';
 
 export const authRouter = Router();
 
@@ -19,8 +20,8 @@ authRouter.post('/register', async (req, res) => {
   const passwordHash = await bcrypt.hash(password, 10);
   const user = await UserModel.create({ email: email.toLowerCase(), passwordHash, name });
 
-  const token = signToken(user._id.toString());
-  res.status(201).json({ token, user: { id: user._id, email: user.email, name: user.name } });
+  setAuthCookie(req, res, signToken(user._id.toString()));
+  res.status(201).json({ user: { id: user._id, email: user.email, name: user.name } });
 });
 
 authRouter.post('/login', async (req, res) => {
@@ -39,8 +40,13 @@ authRouter.post('/login', async (req, res) => {
     return res.status(401).json({ error: 'Invalid email or password' });
   }
 
-  const token = signToken(user._id.toString());
-  res.json({ token, user: { id: user._id, email: user.email, name: user.name } });
+  setAuthCookie(req, res, signToken(user._id.toString()));
+  res.json({ user: { id: user._id, email: user.email, name: user.name } });
+});
+
+authRouter.post('/logout', (req, res) => {
+  clearAuthCookie(req, res);
+  res.status(204).send();
 });
 
 authRouter.get('/me', requireAuth, async (req, res) => {

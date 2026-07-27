@@ -1,5 +1,5 @@
 import express from 'express';
-import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { authRouter } from './routes/auth.js';
 import { tasksRouter } from './routes/tasks.js';
 import { apiKeysRouter } from './routes/apiKeys.js';
@@ -7,8 +7,9 @@ import { getDb } from './db.js';
 
 export const app = express();
 
-app.use(cors());
+app.set('trust proxy', 1);
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(async (_req, _res, next) => {
   try {

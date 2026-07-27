@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import { AUTH_COOKIE_NAME } from '../utils/cookies.js';
 
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
@@ -12,16 +13,15 @@ export function signToken(userId: string): string {
 }
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
-  const token = header?.startsWith('Bearer ') ? header.slice('Bearer '.length) : null;
+  const token = req.cookies?.[AUTH_COOKIE_NAME];
   if (!token) {
-    return res.status(401).json({ error: 'Missing authorization token' });
+    return res.status(401).json({ error: 'Not authenticated' });
   }
   try {
     const payload = jwt.verify(token, getJwtSecret()) as jwt.JwtPayload;
     req.userId = payload.sub as string;
     next();
   } catch {
-    return res.status(401).json({ error: 'Invalid or expired token' });
+    return res.status(401).json({ error: 'Invalid or expired session' });
   }
 }
