@@ -24,7 +24,7 @@ function textResult(value: unknown) {
   return { content: [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }] };
 }
 
-const server = new McpServer({ name: 'todo-scheduler', version: '0.1.0' });
+const server = new McpServer({ name: 'nextup', version: '0.1.0' });
 
 server.registerTool(
   'list_tasks',

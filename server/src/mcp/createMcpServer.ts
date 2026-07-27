@@ -21,7 +21,7 @@ export function createMcpServer(
   authMethod: 'jwt' | 'apikey' | undefined,
   apiKeyId: string | undefined
 ): McpServer {
-  const server = new McpServer({ name: 'todo-scheduler', version: '0.2.0' });
+  const server = new McpServer({ name: 'nextup', version: '0.2.0' });
 
   server.registerTool(
     'list_tasks',

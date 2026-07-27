@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
 import { translations, type Locale } from './translations';
 
-const STORAGE_KEY = 'todo-scheduler:locale';
+const STORAGE_KEY = 'nextup:locale';
 
 function getInitialLocale(): Locale {
   const stored = localStorage.getItem(STORAGE_KEY);

@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 
 type Theme = 'light' | 'dark';
 
-const STORAGE_KEY = 'todo-scheduler:theme';
+const STORAGE_KEY = 'nextup:theme';
 
 function getInitialTheme(): Theme {
   const stored = localStorage.getItem(STORAGE_KEY);

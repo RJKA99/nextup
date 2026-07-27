@@ -1,8 +1,8 @@
-const BASE_URL = process.env.TODO_SCHEDULER_API_URL ?? 'http://localhost:4000';
-const API_KEY = process.env.TODO_SCHEDULER_API_KEY;
+const BASE_URL = process.env.NEXTUP_API_URL ?? 'http://localhost:4000';
+const API_KEY = process.env.NEXTUP_API_KEY;
 
 if (!API_KEY) {
-  throw new Error('TODO_SCHEDULER_API_KEY environment variable is required');
+  throw new Error('NEXTUP_API_KEY environment variable is required');
 }
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {

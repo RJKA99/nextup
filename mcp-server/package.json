@@ -1,10 +1,10 @@
 {
-  "name": "@todo-scheduler/mcp-server",
+  "name": "@nextup/mcp-server",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "bin": {
-    "todo-scheduler-mcp": "dist/index.js"
+    "nextup-mcp": "dist/index.js"
   },
   "scripts": {
     "dev": "tsx src/index.ts",

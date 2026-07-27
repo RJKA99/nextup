@@ -1,4 +1,4 @@
-# Todo Scheduler
+# NextUp
 
 A task manager that doesn't just list what you have to do — it tells you what to do **next**, and lets AI agents schedule work on your behalf while you rate how well they estimated it.
 
@@ -29,7 +29,7 @@ Click **"✨ Try the demo, no account needed"** on the login page — it instant
 ## Repository layout
 
 ```
-todo-scheduler/
+nextup/
 ├── api/            Vercel Function entrypoint (wraps the Express app)
 ├── server/         Express + TypeScript backend
 │   ├── services/   Task business logic, shared by REST routes and the embedded MCP server
@@ -78,12 +78,12 @@ Both transports expose the same five tools: `list_tasks`, `get_next_task`, `crea
 ```json
 {
   "mcpServers": {
-    "todo-scheduler": {
+    "nextup": {
       "command": "node",
-      "args": ["/absolute/path/to/todo-scheduler/mcp-server/dist/index.js"],
+      "args": ["/absolute/path/to/nextup/mcp-server/dist/index.js"],
       "env": {
-        "TODO_SCHEDULER_API_URL": "https://todo-scheduler-kappa.vercel.app",
-        "TODO_SCHEDULER_API_KEY": "tsk_..."
+        "NEXTUP_API_URL": "https://todo-scheduler-kappa.vercel.app",
+        "NEXTUP_API_KEY": "tsk_..."
       }
     }
   }
@@ -95,7 +95,7 @@ Both transports expose the same five tools: `list_tasks`, `get_next_task`, `crea
 ```json
 {
   "mcpServers": {
-    "todo-scheduler": {
+    "nextup": {
       "url": "https://todo-scheduler-kappa.vercel.app/api/mcp",
       "headers": { "Authorization": "Bearer tsk_..." }
     }

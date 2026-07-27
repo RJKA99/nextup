@@ -53,7 +53,7 @@ export function LoginPage() {
         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-200/50 dark:border-slate-700 dark:bg-slate-800 dark:shadow-none">
           <div className="mb-6 text-center">
             <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-lg font-bold text-white shadow-sm">
-              T
+              N
             </div>
             <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{t('login.title')}</h1>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('login.subtitle')}</p>

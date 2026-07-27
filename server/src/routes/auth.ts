@@ -49,7 +49,7 @@ authRouter.post('/login', async (req, res) => {
 
 authRouter.post('/demo', async (req, res) => {
   const locale = req.body?.locale === 'fi' ? 'fi' : 'en';
-  const email = `demo-${Date.now()}-${randomBytes(4).toString('hex')}@todo-scheduler.demo`;
+  const email = `demo-${Date.now()}-${randomBytes(4).toString('hex')}@nextup.demo`;
   const passwordHash = await bcrypt.hash(randomBytes(24).toString('hex'), 10);
   const name = locale === 'fi' ? 'Demo-käyttäjä' : 'Demo user';
   const user = await UserModel.create({ email, passwordHash, name, isDemo: true });
