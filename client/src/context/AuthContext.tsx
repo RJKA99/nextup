@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { apiFetch } from '../api/client';
+import { useLanguage } from '../i18n/LanguageContext';
 import type { AuthUser } from '../types';
 
 interface AuthContextValue {
@@ -14,6 +15,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { locale } = useLanguage();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,9 +43,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const tryDemo = useCallback(async () => {
-    const res = await apiFetch<{ user: AuthUser }>('/auth/demo', { method: 'POST' });
+    const res = await apiFetch<{ user: AuthUser }>('/auth/demo', {
+      method: 'POST',
+      body: JSON.stringify({ locale }),
+    });
     setUser(res.user);
-  }, []);
+  }, [locale]);
 
   const logout = useCallback(async () => {
     await apiFetch('/auth/logout', { method: 'POST' });

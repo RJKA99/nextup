@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { apiFetch, ApiError } from '../api/client';
 import { AppHeader } from '../components/AppHeader';
+import { useLanguage } from '../i18n/LanguageContext';
+import { formatDate } from '../utils/formatDate';
 
 interface ApiKeyMeta {
   _id: string;
@@ -11,6 +13,7 @@ interface ApiKeyMeta {
 }
 
 export function ApiKeysPage() {
+  const { t, locale } = useLanguage();
   const [keys, setKeys] = useState<ApiKeyMeta[]>([]);
   const [name, setName] = useState('');
   const [newKey, setNewKey] = useState<string | null>(null);
@@ -22,7 +25,7 @@ export function ApiKeysPage() {
       const res = await apiFetch<{ apiKeys: ApiKeyMeta[] }>('/api-keys');
       setKeys(res.apiKeys);
     } catch {
-      setError('Avainten lataus epäonnistui');
+      setError(t('apiKeys.loadError'));
     } finally {
       setLoading(false);
     }
@@ -30,6 +33,7 @@ export function ApiKeysPage() {
 
   useEffect(() => {
     refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleCreate(e: FormEvent) {
@@ -44,7 +48,7 @@ export function ApiKeysPage() {
       setName('');
       await refresh();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Avaimen luonti epäonnistui');
+      setError(err instanceof ApiError ? err.message : t('apiKeys.createError'));
     }
   }
 
@@ -57,23 +61,18 @@ export function ApiKeysPage() {
     <div className="min-h-screen">
       <AppHeader active="api-keys" />
       <main className="mx-auto max-w-3xl px-4 py-8">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">API-avaimet</h1>
-        <p className="mb-6 mt-1 text-sm text-slate-500">
-          API-avaimilla AI-agentit voivat lisätä ja aikatauluttaa tehtäviä puolestasi MCP-palvelimen kautta. Anna
-          avain vain luotettuun agenttiin.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t('apiKeys.title')}</h1>
+        <p className="mb-6 mt-1 text-sm text-slate-500">{t('apiKeys.description')}</p>
 
         {newKey && (
           <div className="mb-6 rounded-2xl border border-amber-300 bg-amber-50 p-4">
-            <p className="text-sm font-semibold text-amber-900">
-              Tallenna tämä avain nyt — sitä ei näytetä enää uudelleen:
-            </p>
+            <p className="text-sm font-semibold text-amber-900">{t('apiKeys.saveKeyNotice')}</p>
             <code className="mt-2 block break-all rounded-lg bg-white px-3 py-2 text-sm shadow-sm">{newKey}</code>
             <button
               onClick={() => setNewKey(null)}
               className="mt-2 text-sm font-medium text-amber-900 hover:underline"
             >
-              Olen tallentanut avaimen
+              {t('apiKeys.savedConfirm')}
             </button>
           </div>
         )}
@@ -84,7 +83,7 @@ export function ApiKeysPage() {
         >
           <input
             required
-            placeholder="Avaimen nimi (esim. Claude Desktop)"
+            placeholder={t('apiKeys.namePlaceholder')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
@@ -93,12 +92,12 @@ export function ApiKeysPage() {
             type="submit"
             className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
           >
-            Luo avain
+            {t('apiKeys.createButton')}
           </button>
         </form>
 
         {error && <p className="mb-4 text-sm text-rose-600">{error}</p>}
-        {loading && <p className="text-slate-500">Ladataan…</p>}
+        {loading && <p className="text-slate-500">{t('apiKeys.loading')}</p>}
 
         {!loading && (
           <ul className="flex flex-col gap-2">
@@ -110,24 +109,24 @@ export function ApiKeysPage() {
                 <div>
                   <p className="font-semibold text-slate-900">{key.name}</p>
                   <p className="mt-0.5 text-sm text-slate-500">
-                    <code className="text-xs">{key.keyPrefix}…</code> · luotu{' '}
-                    {new Date(key.createdAt).toLocaleDateString('fi-FI')}
+                    <code className="text-xs">{key.keyPrefix}…</code> ·{' '}
+                    {t('apiKeys.createdLabel', { date: formatDate(key.createdAt, locale) })}
                     {key.lastUsedAt
-                      ? ` · käytetty viimeksi ${new Date(key.lastUsedAt).toLocaleDateString('fi-FI')}`
-                      : ' · ei käytetty vielä'}
+                      ? ` · ${t('apiKeys.lastUsedLabel', { date: formatDate(key.lastUsedAt, locale) })}`
+                      : ` · ${t('apiKeys.neverUsed')}`}
                   </p>
                 </div>
                 <button
                   onClick={() => handleDelete(key._id)}
                   className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-rose-500 transition hover:bg-rose-50"
                 >
-                  Peruuta
+                  {t('apiKeys.revoke')}
                 </button>
               </li>
             ))}
             {keys.length === 0 && (
               <p className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-6 text-center text-sm text-slate-500">
-                Ei vielä API-avaimia.
+                {t('apiKeys.empty')}
               </p>
             )}
           </ul>

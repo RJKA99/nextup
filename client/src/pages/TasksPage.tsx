@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { apiFetch } from '../api/client';
+import { useLanguage } from '../i18n/LanguageContext';
 import { AppHeader } from '../components/AppHeader';
 import { TaskForm, type TaskFormValues } from '../components/TaskForm';
 import { TaskList } from '../components/TaskList';
@@ -8,6 +9,7 @@ import type { FeedbackValues } from '../components/TaskFeedbackForm';
 import type { Task, TaskStatus } from '../types';
 
 export function TasksPage() {
+  const { t } = useLanguage();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [nextTask, setNextTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,11 +24,11 @@ export function TasksPage() {
       setTasks(tasksRes.tasks);
       setNextTask(nextRes.task);
     } catch {
-      setError('Tehtävien lataus epäonnistui');
+      setError(t('tasks.loadError'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     refresh();
@@ -64,11 +66,11 @@ export function TasksPage() {
         </div>
 
         <div className="mb-8">
-          <TaskForm parentOptions={tasks.filter((t) => !t.parentTaskId)} onSubmit={handleCreate} />
+          <TaskForm parentOptions={tasks.filter((task) => !task.parentTaskId)} onSubmit={handleCreate} />
         </div>
 
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Kaikki tehtävät</h2>
-        {loading && <p className="text-slate-500">Ladataan…</p>}
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">{t('tasks.allTasks')}</h2>
+        {loading && <p className="text-slate-500">{t('tasks.loading')}</p>}
         {error && <p className="text-rose-600">{error}</p>}
         {!loading && !error && (
           <TaskList

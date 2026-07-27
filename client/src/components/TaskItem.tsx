@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { Task, TaskStatus } from '../types';
 import { TaskFeedbackForm, type FeedbackValues } from './TaskFeedbackForm';
 import { explainScore } from '../utils/explainScore';
+import { formatDate } from '../utils/formatDate';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface TaskItemProps {
   task: Task;
@@ -11,12 +13,6 @@ interface TaskItemProps {
   onFeedback: (id: string, values: FeedbackValues) => Promise<void>;
 }
 
-const STATUS_LABELS: Record<TaskStatus, string> = {
-  todo: 'Tekemättä',
-  in_progress: 'Kesken',
-  done: 'Valmis',
-};
-
 function scoreBadgeClass(score: number): string {
   if (score >= 0.7) return 'bg-rose-100 text-rose-700';
   if (score >= 0.4) return 'bg-amber-100 text-amber-700';
@@ -24,8 +20,15 @@ function scoreBadgeClass(score: number): string {
 }
 
 export function TaskItem({ task, isSubtask, onStatusChange, onDelete, onFeedback }: TaskItemProps) {
+  const { t, locale } = useLanguage();
   const [showWhy, setShowWhy] = useState(false);
   const needsFeedback = task.status === 'done' && task.createdVia === 'agent' && task.estimateRating === null;
+
+  const statusLabels: Record<TaskStatus, string> = {
+    todo: t('status.todo'),
+    in_progress: t('status.in_progress'),
+    done: t('status.done'),
+  };
 
   return (
     <div
@@ -45,24 +48,24 @@ export function TaskItem({ task, isSubtask, onStatusChange, onDelete, onFeedback
             </span>
             {task.createdVia === 'agent' && (
               <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">
-                Agentin luoma
+                {t('common.agentCreated')}
               </span>
             )}
           </div>
           <p className="mt-1 truncate text-sm text-slate-500">
             {task.category ? `${task.category} · ` : ''}
-            {task.estimatedMinutes} min · relevanssi {task.relevance}/5
-            {task.deadline ? ` · deadline ${new Date(task.deadline).toLocaleDateString('fi-FI')}` : ''}
-            {task.estimateRating !== null ? ` · palaute ${task.estimateRating}/5` : ''}
+            {t('common.minutes', { minutes: task.estimatedMinutes })} · {t('common.relevance', { relevance: task.relevance })}
+            {task.deadline ? ` · ${t('common.deadline', { date: formatDate(task.deadline, locale) })}` : ''}
+            {task.estimateRating !== null ? ` · ${t('common.feedbackRating', { rating: task.estimateRating })}` : ''}
           </p>
           <button
             type="button"
             onClick={() => setShowWhy((v) => !v)}
             className="mt-1 text-xs font-medium text-slate-400 underline decoration-dotted hover:text-slate-700"
           >
-            {showWhy ? 'Piilota selitys' : 'Miksi?'}
+            {showWhy ? t('common.hideWhy') : t('common.why')}
           </button>
-          {showWhy && <p className="mt-1 text-xs leading-relaxed text-slate-500">{explainScore(task)}</p>}
+          {showWhy && <p className="mt-1 text-xs leading-relaxed text-slate-500">{explainScore(task, t)}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <select
@@ -70,7 +73,7 @@ export function TaskItem({ task, isSubtask, onStatusChange, onDelete, onFeedback
             onChange={(e) => onStatusChange(task._id, e.target.value as TaskStatus)}
             className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-700 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
           >
-            {Object.entries(STATUS_LABELS).map(([value, label]) => (
+            {(Object.entries(statusLabels) as [TaskStatus, string][]).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
               </option>
@@ -80,7 +83,7 @@ export function TaskItem({ task, isSubtask, onStatusChange, onDelete, onFeedback
             onClick={() => onDelete(task._id)}
             className="rounded-lg px-2 py-1.5 text-sm font-medium text-rose-500 transition hover:bg-rose-50"
           >
-            Poista
+            {t('taskItem.delete')}
           </button>
         </div>
       </div>

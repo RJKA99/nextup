@@ -48,11 +48,13 @@ authRouter.post('/login', async (req, res) => {
 });
 
 authRouter.post('/demo', async (req, res) => {
+  const locale = req.body?.locale === 'fi' ? 'fi' : 'en';
   const email = `demo-${Date.now()}-${randomBytes(4).toString('hex')}@todo-scheduler.demo`;
   const passwordHash = await bcrypt.hash(randomBytes(24).toString('hex'), 10);
-  const user = await UserModel.create({ email, passwordHash, name: 'Demo-käyttäjä', isDemo: true });
+  const name = locale === 'fi' ? 'Demo-käyttäjä' : 'Demo user';
+  const user = await UserModel.create({ email, passwordHash, name, isDemo: true });
 
-  await TaskModel.insertMany(buildDemoTasks(user._id));
+  await TaskModel.insertMany(buildDemoTasks(user._id, locale));
 
   setAuthCookie(req, res, signToken(user._id.toString()));
   res.status(201).json({ user: { id: user._id, email: user.email, name: user.name, isDemo: true } });

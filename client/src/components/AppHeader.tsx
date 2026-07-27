@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../i18n/LanguageContext';
+import { LanguageToggle } from './LanguageToggle';
 
 interface AppHeaderProps {
   active?: 'tasks' | 'api-keys';
@@ -7,6 +9,7 @@ interface AppHeaderProps {
 
 export function AppHeader({ active }: AppHeaderProps) {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <>
@@ -25,7 +28,7 @@ export function AppHeader({ active }: AppHeaderProps) {
                 active === 'tasks' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              Tehtävät
+              {t('header.tasks')}
             </Link>
             <Link
               to="/api-keys"
@@ -33,27 +36,28 @@ export function AppHeader({ active }: AppHeaderProps) {
                 active === 'api-keys' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              API-avaimet
+              {t('header.apiKeys')}
             </Link>
             <span className="hidden text-slate-400 md:inline">
-              {user?.isDemo ? 'Demo-käyttäjä' : user?.email}
+              {user?.isDemo ? t('header.demoUser') : user?.email}
             </span>
+            <LanguageToggle />
             <button
               onClick={() => logout()}
               className="rounded-lg px-2.5 py-1.5 font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
             >
-              Kirjaudu ulos
+              {t('header.logout')}
             </button>
           </div>
         </div>
       </header>
       {user?.isDemo && (
         <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-800">
-          ✨ Olet demotilassa esimerkkidatalla. Tiedot eivät ole pysyviä.{' '}
+          {t('header.demoBannerPrefix')}{' '}
           <Link to="/register" className="font-medium underline">
-            Luo oma tili
+            {t('header.demoBannerLinkText')}
           </Link>{' '}
-          pitääksesi tehtäväsi.
+          {t('header.demoBannerSuffix')}
         </div>
       )}
     </>

@@ -1,16 +1,24 @@
 import type { Task } from '../types';
 
-export function explainScore(task: Task): string {
-  const relevancePart = `Relevanssi ${task.relevance}/5 antaa ${task.relevanceComponent.toFixed(2)} pistettä`;
+type TranslateFn = (key: string, vars?: Record<string, string | number>) => string;
+
+export function explainScore(task: Task, t: TranslateFn): string {
+  const relevancePart = t('explain.relevancePart', {
+    relevance: task.relevance,
+    value: task.relevanceComponent.toFixed(2),
+  });
 
   let urgencyPart: string;
   if (task.daysUntilDeadline === null) {
-    urgencyPart = `ei määräaikaa, joten kiireellisyys on matala vakio (${task.urgencyComponent.toFixed(2)})`;
+    urgencyPart = t('explain.noDeadline', { value: task.urgencyComponent.toFixed(2) });
   } else if (task.isOverdue) {
-    urgencyPart = `määräaika on jo ohi, joten kiireellisyys on maksimissaan (${task.urgencyComponent.toFixed(2)})`;
+    urgencyPart = t('explain.overdue', { value: task.urgencyComponent.toFixed(2) });
   } else {
-    urgencyPart = `määräaikaan on ${Math.round(task.daysUntilDeadline)} pv, mikä antaa ${task.urgencyComponent.toFixed(2)} pistettä kiireellisyydestä`;
+    urgencyPart = t('explain.daysLeft', {
+      days: Math.round(task.daysUntilDeadline),
+      value: task.urgencyComponent.toFixed(2),
+    });
   }
 
-  return `${relevancePart}, ja ${urgencyPart}. Yhteispisteet ${task.score.toFixed(2)} (molemmat painotettu 50 %).`;
+  return `${relevancePart}, ${t('explain.and')} ${urgencyPart}. ${t('explain.total', { score: task.score.toFixed(2) })}`;
 }

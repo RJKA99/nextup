@@ -1,6 +1,7 @@
 import type { Task, TaskStatus } from '../types';
 import { TaskItem } from './TaskItem';
 import type { FeedbackValues } from './TaskFeedbackForm';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface TaskListProps {
   tasks: Task[];
@@ -10,15 +11,17 @@ interface TaskListProps {
 }
 
 export function TaskList({ tasks, onStatusChange, onDelete, onFeedback }: TaskListProps) {
+  const { t } = useLanguage();
+
   if (tasks.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-6 text-center text-sm text-slate-500">
-        Ei vielä tehtäviä. Lisää ensimmäinen yllä.
+        {t('taskList.empty')}
       </p>
     );
   }
 
-  const topLevel = tasks.filter((t) => !t.parentTaskId);
+  const topLevel = tasks.filter((task) => !task.parentTaskId);
   const childrenByParent = new Map<string, Task[]>();
   for (const task of tasks) {
     if (task.parentTaskId) {
