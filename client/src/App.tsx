@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { ThemeProvider } from './theme/ThemeContext';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
 import { PrivateRoute } from './components/PrivateRoute';
@@ -9,18 +10,20 @@ import { ApiKeysPage } from './pages/ApiKeysPage';
 
 export function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route element={<PrivateRoute />}>
-            <Route path="/" element={<TasksPage />} />
-            <Route path="/api-keys" element={<ApiKeysPage />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AuthProvider>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route element={<PrivateRoute />}>
+              <Route path="/" element={<TasksPage />} />
+              <Route path="/api-keys" element={<ApiKeysPage />} />
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }

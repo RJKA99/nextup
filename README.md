@@ -9,6 +9,7 @@ Click **"✨ Try the demo, no account needed"** on the login page — it instant
 ## What it does
 
 - **English by default, Finnish on toggle** — an `EN`/`FI` switch (top of every page) swaps all UI chrome instantly and persists the choice in `localStorage`. The demo seeds its sample tasks in whichever language is active when you click it.
+- **Light/dark mode** — a toggle next to the language switch, defaulting to your OS preference and persisted in `localStorage` independently of it (Tailwind `darkMode: 'class'`, not `prefers-color-scheme` alone).
 - **Priority scoring** — every task has an estimated duration, a relevance rating (1–5), and an optional deadline. A scoring function combines deadline urgency with relevance to rank tasks and surface a single "do this next" recommendation, instead of leaving you to stare at a flat list. A "Why?" toggle on every task shows the breakdown (relevance component + urgency component = score) rather than a bare, unexplained number.
 - **Subtasks** — any task (manually or via an agent) can be split into subtasks via `parentTaskId`, so a big vague task becomes several small, well-estimated ones instead of one uncertain guess.
 - **AI agent integration (MCP)** — agents (Claude Desktop, Claude Code, or anything MCP-compatible) create and update tasks on your behalf, authenticated with a per-user API key. Two transports are available: a stdio server for local agent clients, and a remote Streamable HTTP endpoint (`/api/mcp`) for hosted/remote agents — both expose the same tools.

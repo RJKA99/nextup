@@ -28,7 +28,7 @@ const EMPTY: TaskFormValues = {
 };
 
 const inputClass =
-  'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30';
+  'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500';
 
 export function TaskForm({ parentOptions, onSubmit }: TaskFormProps) {
   const { t } = useLanguage();
@@ -47,8 +47,8 @@ export function TaskForm({ parentOptions, onSubmit }: TaskFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">{t('taskForm.heading')}</h2>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{t('taskForm.heading')}</h2>
       <input
         required
         placeholder={t('taskForm.titlePlaceholder')}
@@ -84,7 +84,7 @@ export function TaskForm({ parentOptions, onSubmit }: TaskFormProps) {
         </select>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <label className="flex flex-col gap-1 text-xs font-medium text-slate-500">
+        <label className="flex flex-col gap-1 text-xs font-medium text-slate-500 dark:text-slate-400">
           {t('taskForm.durationLabel')}
           <input
             type="number"
@@ -95,7 +95,7 @@ export function TaskForm({ parentOptions, onSubmit }: TaskFormProps) {
             className={inputClass}
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs font-medium text-slate-500">
+        <label className="flex flex-col gap-1 text-xs font-medium text-slate-500 dark:text-slate-400">
           {t('taskForm.relevanceLabel')}
           <input
             type="number"
@@ -107,7 +107,7 @@ export function TaskForm({ parentOptions, onSubmit }: TaskFormProps) {
             className={inputClass}
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs font-medium text-slate-500">
+        <label className="flex flex-col gap-1 text-xs font-medium text-slate-500 dark:text-slate-400">
           {t('taskForm.deadlineLabel')}
           <input
             type="date"

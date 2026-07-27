@@ -40,9 +40,9 @@ export function TaskFeedbackForm({ estimatedMinutes, onSubmit }: TaskFeedbackFor
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-1 flex flex-col gap-2.5 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3.5"
+      className="mt-1 flex flex-col gap-2.5 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3.5 dark:border-indigo-900/50 dark:bg-indigo-950/30"
     >
-      <p className="text-sm font-medium text-slate-700">{t('feedback.prompt', { minutes: estimatedMinutes })}</p>
+      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('feedback.prompt', { minutes: estimatedMinutes })}</p>
       <div className="flex items-center gap-1.5">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
@@ -50,7 +50,9 @@ export function TaskFeedbackForm({ estimatedMinutes, onSubmit }: TaskFeedbackFor
             type="button"
             onClick={() => setRating(n)}
             className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-semibold transition ${
-              rating >= n ? 'bg-amber-400 text-amber-950' : 'bg-white text-slate-400 shadow-sm hover:bg-slate-100'
+              rating >= n
+                ? 'bg-amber-400 text-amber-950'
+                : 'bg-white text-slate-400 shadow-sm hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-500 dark:hover:bg-slate-700'
             }`}
             aria-label={t('feedback.star', { n })}
           >
@@ -65,7 +67,7 @@ export function TaskFeedbackForm({ estimatedMinutes, onSubmit }: TaskFeedbackFor
           placeholder={t('feedback.actualMinutesPlaceholder')}
           value={actualMinutes}
           onChange={(e) => setActualMinutes(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 sm:w-56"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 sm:w-56"
         />
         <input
           type="text"
@@ -73,17 +75,17 @@ export function TaskFeedbackForm({ estimatedMinutes, onSubmit }: TaskFeedbackFor
           placeholder={commentRequired ? t('feedback.commentRequiredPlaceholder') : t('feedback.commentOptionalPlaceholder')}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className={`flex-1 rounded-lg border bg-white px-3 py-1.5 text-sm shadow-sm transition focus:outline-none focus:ring-2 ${
+          className={`flex-1 rounded-lg border bg-white px-3 py-1.5 text-sm shadow-sm transition focus:outline-none focus:ring-2 dark:bg-slate-800 dark:text-slate-100 ${
             commentRequired
-              ? 'border-amber-400 focus:border-amber-500 focus:ring-amber-500/30'
-              : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/30'
+              ? 'border-amber-400 focus:border-amber-500 focus:ring-amber-500/30 dark:border-amber-700'
+              : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/30 dark:border-slate-600'
           }`}
         />
       </div>
       <button
         type="submit"
         disabled={submitting || !canSubmit}
-        className="self-start rounded-lg bg-slate-900 px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+        className="self-start rounded-lg bg-slate-900 px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
       >
         {submitting ? t('feedback.submitting') : t('feedback.submit')}
       </button>

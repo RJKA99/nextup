@@ -14,9 +14,9 @@ export function NextTaskCard({ task }: NextTaskCardProps) {
 
   if (!task) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <p className="text-2xl">🎉</p>
-        <p className="mt-2 font-medium text-slate-700">{t('nextTask.empty')}</p>
+        <p className="mt-2 font-medium text-slate-700 dark:text-slate-300">{t('nextTask.empty')}</p>
       </div>
     );
   }

@@ -10,7 +10,9 @@ export function LanguageToggle() {
         type="button"
         onClick={() => setLocale(value)}
         className={`px-2 py-1 text-xs font-semibold transition ${
-          locale === value ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:bg-slate-100'
+          locale === value
+            ? 'bg-indigo-600 text-white'
+            : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
         }`}
       >
         {label}
@@ -19,7 +21,7 @@ export function LanguageToggle() {
   }
 
   return (
-    <div className="inline-flex overflow-hidden rounded-lg border border-slate-300">
+    <div className="inline-flex overflow-hidden rounded-lg border border-slate-300 dark:border-slate-600">
       {button('en', 'EN')}
       {button('fi', 'FI')}
     </div>

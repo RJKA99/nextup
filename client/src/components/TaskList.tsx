@@ -15,7 +15,7 @@ export function TaskList({ tasks, onStatusChange, onDelete, onFeedback }: TaskLi
 
   if (tasks.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-6 text-center text-sm text-slate-500">
+      <p className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
         {t('taskList.empty')}
       </p>
     );

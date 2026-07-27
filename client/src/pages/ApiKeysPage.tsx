@@ -58,19 +58,21 @@ export function ApiKeysPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <AppHeader active="api-keys" />
       <main className="mx-auto max-w-3xl px-4 py-8">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t('apiKeys.title')}</h1>
-        <p className="mb-6 mt-1 text-sm text-slate-500">{t('apiKeys.description')}</p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{t('apiKeys.title')}</h1>
+        <p className="mb-6 mt-1 text-sm text-slate-500 dark:text-slate-400">{t('apiKeys.description')}</p>
 
         {newKey && (
-          <div className="mb-6 rounded-2xl border border-amber-300 bg-amber-50 p-4">
-            <p className="text-sm font-semibold text-amber-900">{t('apiKeys.saveKeyNotice')}</p>
-            <code className="mt-2 block break-all rounded-lg bg-white px-3 py-2 text-sm shadow-sm">{newKey}</code>
+          <div className="mb-6 rounded-2xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+            <p className="text-sm font-semibold text-amber-900 dark:text-amber-300">{t('apiKeys.saveKeyNotice')}</p>
+            <code className="mt-2 block break-all rounded-lg bg-white px-3 py-2 text-sm shadow-sm dark:bg-slate-900 dark:text-slate-100">
+              {newKey}
+            </code>
             <button
               onClick={() => setNewKey(null)}
-              className="mt-2 text-sm font-medium text-amber-900 hover:underline"
+              className="mt-2 text-sm font-medium text-amber-900 hover:underline dark:text-amber-300"
             >
               {t('apiKeys.savedConfirm')}
             </button>
@@ -79,14 +81,14 @@ export function ApiKeysPage() {
 
         <form
           onSubmit={handleCreate}
-          className="mb-6 flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row"
+          className="mb-6 flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row dark:border-slate-700 dark:bg-slate-800"
         >
           <input
             required
             placeholder={t('apiKeys.namePlaceholder')}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
           />
           <button
             type="submit"
@@ -96,19 +98,19 @@ export function ApiKeysPage() {
           </button>
         </form>
 
-        {error && <p className="mb-4 text-sm text-rose-600">{error}</p>}
-        {loading && <p className="text-slate-500">{t('apiKeys.loading')}</p>}
+        {error && <p className="mb-4 text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+        {loading && <p className="text-slate-500 dark:text-slate-400">{t('apiKeys.loading')}</p>}
 
         {!loading && (
           <ul className="flex flex-col gap-2">
             {keys.map((key) => (
               <li
                 key={key._id}
-                className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800"
               >
                 <div>
-                  <p className="font-semibold text-slate-900">{key.name}</p>
-                  <p className="mt-0.5 text-sm text-slate-500">
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">{key.name}</p>
+                  <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
                     <code className="text-xs">{key.keyPrefix}…</code> ·{' '}
                     {t('apiKeys.createdLabel', { date: formatDate(key.createdAt, locale) })}
                     {key.lastUsedAt
@@ -118,14 +120,14 @@ export function ApiKeysPage() {
                 </div>
                 <button
                   onClick={() => handleDelete(key._id)}
-                  className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-rose-500 transition hover:bg-rose-50"
+                  className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-rose-500 transition hover:bg-rose-50 dark:hover:bg-rose-950/40"
                 >
                   {t('apiKeys.revoke')}
                 </button>
               </li>
             ))}
             {keys.length === 0 && (
-              <p className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-6 text-center text-sm text-slate-500">
+              <p className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
                 {t('apiKeys.empty')}
               </p>
             )}

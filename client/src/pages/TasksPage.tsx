@@ -58,7 +58,7 @@ export function TasksPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <AppHeader active="tasks" />
       <main className="mx-auto max-w-3xl px-4 py-8">
         <div className="mb-6">
@@ -69,9 +69,9 @@ export function TasksPage() {
           <TaskForm parentOptions={tasks.filter((task) => !task.parentTaskId)} onSubmit={handleCreate} />
         </div>
 
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">{t('tasks.allTasks')}</h2>
-        {loading && <p className="text-slate-500">{t('tasks.loading')}</p>}
-        {error && <p className="text-rose-600">{error}</p>}
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{t('tasks.allTasks')}</h2>
+        {loading && <p className="text-slate-500 dark:text-slate-400">{t('tasks.loading')}</p>}
+        {error && <p className="text-rose-600 dark:text-rose-400">{error}</p>}
         {!loading && !error && (
           <TaskList
             tasks={tasks}
