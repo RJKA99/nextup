@@ -4,12 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../api/client';
 
 export function LoginPage() {
-  const { login } = useAuth();
+  const { login, tryDemo } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -25,6 +26,19 @@ export function LoginPage() {
     }
   }
 
+  async function handleDemo() {
+    setError(null);
+    setDemoLoading(true);
+    try {
+      await tryDemo();
+      navigate('/');
+    } catch {
+      setError('Demon käynnistys epäonnistui, yritä hetken kuluttua uudelleen');
+    } finally {
+      setDemoLoading(false);
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-200/50">
@@ -35,6 +49,22 @@ export function LoginPage() {
           <h1 className="text-xl font-bold tracking-tight text-slate-900">Tervetuloa takaisin</h1>
           <p className="mt-1 text-sm text-slate-500">Kirjaudu sisään jatkaaksesi</p>
         </div>
+
+        <button
+          type="button"
+          onClick={handleDemo}
+          disabled={demoLoading}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 shadow-sm transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {demoLoading ? 'Valmistellaan demoa…' : '✨ Kokeile demoa ilman tunnuksia'}
+        </button>
+
+        <div className="my-5 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-slate-400">
+          <div className="h-px flex-1 bg-slate-200" />
+          tai kirjaudu
+          <div className="h-px flex-1 bg-slate-200" />
+        </div>
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
           <input
             type="email"

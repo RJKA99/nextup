@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import { UserModel } from '../models/User.js';
+import { TaskModel } from '../models/Task.js';
 import { signToken, requireAuth } from '../middleware/auth.js';
 import { setAuthCookie, clearAuthCookie } from '../utils/cookies.js';
+import { buildDemoTasks } from '../utils/demoData.js';
 
 export const authRouter = Router();
 
@@ -21,7 +24,7 @@ authRouter.post('/register', async (req, res) => {
   const user = await UserModel.create({ email: email.toLowerCase(), passwordHash, name });
 
   setAuthCookie(req, res, signToken(user._id.toString()));
-  res.status(201).json({ user: { id: user._id, email: user.email, name: user.name } });
+  res.status(201).json({ user: { id: user._id, email: user.email, name: user.name, isDemo: false } });
 });
 
 authRouter.post('/login', async (req, res) => {
@@ -41,7 +44,18 @@ authRouter.post('/login', async (req, res) => {
   }
 
   setAuthCookie(req, res, signToken(user._id.toString()));
-  res.json({ user: { id: user._id, email: user.email, name: user.name } });
+  res.json({ user: { id: user._id, email: user.email, name: user.name, isDemo: user.isDemo } });
+});
+
+authRouter.post('/demo', async (req, res) => {
+  const email = `demo-${Date.now()}-${randomBytes(4).toString('hex')}@todo-scheduler.demo`;
+  const passwordHash = await bcrypt.hash(randomBytes(24).toString('hex'), 10);
+  const user = await UserModel.create({ email, passwordHash, name: 'Demo-käyttäjä', isDemo: true });
+
+  await TaskModel.insertMany(buildDemoTasks(user._id));
+
+  setAuthCookie(req, res, signToken(user._id.toString()));
+  res.status(201).json({ user: { id: user._id, email: user.email, name: user.name, isDemo: true } });
 });
 
 authRouter.post('/logout', (req, res) => {
@@ -50,7 +64,7 @@ authRouter.post('/logout', (req, res) => {
 });
 
 authRouter.get('/me', requireAuth, async (req, res) => {
-  const user = await UserModel.findById(req.userId).select('email name');
+  const user = await UserModel.findById(req.userId).select('email name isDemo');
   if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({ user: { id: user._id, email: user.email, name: user.name } });
+  res.json({ user: { id: user._id, email: user.email, name: user.name, isDemo: user.isDemo } });
 });

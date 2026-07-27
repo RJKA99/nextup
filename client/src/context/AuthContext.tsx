@@ -7,6 +7,7 @@ interface AuthContextValue {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
+  tryDemo: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -39,13 +40,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.user);
   }, []);
 
+  const tryDemo = useCallback(async () => {
+    const res = await apiFetch<{ user: AuthUser }>('/auth/demo', { method: 'POST' });
+    setUser(res.user);
+  }, []);
+
   const logout = useCallback(async () => {
     await apiFetch('/auth/logout', { method: 'POST' });
     setUser(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, loading, login, register, tryDemo, logout }}>{children}</AuthContext.Provider>
   );
 }
 
