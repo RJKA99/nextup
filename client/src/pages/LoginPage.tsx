@@ -54,7 +54,13 @@ export function LoginPage() {
       <div className="mx-auto grid min-h-screen max-w-6xl gap-10 px-4 py-10 lg:grid-cols-2 lg:items-center lg:gap-16 lg:py-16">
         {/* Left — pitch */}
         <div className="order-2 lg:order-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-lg font-bold text-white shadow-sm">
+              N
+            </span>
+            <span className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">NextUp</span>
+          </div>
+          <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
             {t('landing.kicker')}
           </p>
           <h1 className="mt-3 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl dark:text-slate-100">
