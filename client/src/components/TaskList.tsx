@@ -11,7 +11,11 @@ interface TaskListProps {
 
 export function TaskList({ tasks, onStatusChange, onDelete, onFeedback }: TaskListProps) {
   if (tasks.length === 0) {
-    return <p className="text-slate-500">Ei vielä tehtäviä. Lisää ensimmäinen yllä.</p>;
+    return (
+      <p className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-6 text-center text-sm text-slate-500">
+        Ei vielä tehtäviä. Lisää ensimmäinen yllä.
+      </p>
+    );
   }
 
   return (

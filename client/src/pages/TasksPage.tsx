@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { apiFetch } from '../api/client';
-import { useAuth } from '../context/AuthContext';
+import { AppHeader } from '../components/AppHeader';
 import { TaskForm, type TaskFormValues } from '../components/TaskForm';
 import { TaskList } from '../components/TaskList';
 import { NextTaskCard } from '../components/NextTaskCard';
@@ -9,7 +8,6 @@ import type { FeedbackValues } from '../components/TaskFeedbackForm';
 import type { Task, TaskStatus } from '../types';
 
 export function TasksPage() {
-  const { user, logout } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [nextTask, setNextTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,38 +56,29 @@ export function TasksPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Todo Scheduler</h1>
-        <div className="flex items-center gap-3 text-sm text-slate-600">
-          <span>{user?.email}</span>
-          <Link to="/api-keys" className="underline">
-            API-avaimet
-          </Link>
-          <button onClick={logout} className="underline">
-            Kirjaudu ulos
-          </button>
+    <div className="min-h-screen">
+      <AppHeader active="tasks" />
+      <main className="mx-auto max-w-3xl px-4 py-8">
+        <div className="mb-6">
+          <NextTaskCard task={nextTask} />
         </div>
-      </div>
 
-      <div className="mb-6">
-        <NextTaskCard task={nextTask} />
-      </div>
+        <div className="mb-8">
+          <TaskForm onSubmit={handleCreate} />
+        </div>
 
-      <div className="mb-6">
-        <TaskForm onSubmit={handleCreate} />
-      </div>
-
-      {loading && <p className="text-slate-500">Ladataan…</p>}
-      {error && <p className="text-red-600">{error}</p>}
-      {!loading && !error && (
-        <TaskList
-          tasks={tasks}
-          onStatusChange={handleStatusChange}
-          onDelete={handleDelete}
-          onFeedback={handleFeedback}
-        />
-      )}
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Kaikki tehtävät</h2>
+        {loading && <p className="text-slate-500">Ladataan…</p>}
+        {error && <p className="text-rose-600">{error}</p>}
+        {!loading && !error && (
+          <TaskList
+            tasks={tasks}
+            onStatusChange={handleStatusChange}
+            onDelete={handleDelete}
+            onFeedback={handleFeedback}
+          />
+        )}
+      </main>
     </div>
   );
 }

@@ -14,27 +14,36 @@ const STATUS_LABELS: Record<TaskStatus, string> = {
   done: 'Valmis',
 };
 
+function scoreBadgeClass(score: number): string {
+  if (score >= 0.7) return 'bg-rose-100 text-rose-700';
+  if (score >= 0.4) return 'bg-amber-100 text-amber-700';
+  return 'bg-slate-100 text-slate-600';
+}
+
 export function TaskItem({ task, onStatusChange, onDelete, onFeedback }: TaskItemProps) {
   const needsFeedback = task.status === 'done' && task.createdVia === 'agent' && task.estimateRating === null;
 
   return (
-    <li className="flex flex-col gap-1 rounded-lg border border-slate-200 p-3">
-      <div className="flex items-center justify-between gap-4">
+    <li className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+      <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className={`font-medium text-slate-900 ${task.status === 'done' ? 'line-through opacity-60' : ''}`}>
-            {task.title}
+          <div className="flex flex-wrap items-center gap-2">
+            <p className={`font-semibold text-slate-900 ${task.status === 'done' ? 'line-through opacity-50' : ''}`}>
+              {task.title}
+            </p>
+            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${scoreBadgeClass(task.score)}`}>
+              {task.score.toFixed(2)}
+            </span>
             {task.createdVia === 'agent' && (
-              <span className="ml-2 rounded bg-indigo-100 px-1.5 py-0.5 align-middle text-xs font-normal text-indigo-700 no-underline">
+              <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">
                 Agentin luoma
               </span>
             )}
-          </p>
-          <p className="truncate text-sm text-slate-500">
+          </div>
+          <p className="mt-1 truncate text-sm text-slate-500">
             {task.category ? `${task.category} · ` : ''}
             {task.estimatedMinutes} min · relevanssi {task.relevance}/5
             {task.deadline ? ` · deadline ${new Date(task.deadline).toLocaleDateString('fi-FI')}` : ''}
-            {' · pisteet '}
-            {task.score.toFixed(2)}
             {task.estimateRating !== null ? ` · palaute ${task.estimateRating}/5` : ''}
           </p>
         </div>
@@ -42,7 +51,7 @@ export function TaskItem({ task, onStatusChange, onDelete, onFeedback }: TaskIte
           <select
             value={task.status}
             onChange={(e) => onStatusChange(task._id, e.target.value as TaskStatus)}
-            className="rounded border border-slate-300 px-2 py-1 text-sm"
+            className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-700 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
           >
             {Object.entries(STATUS_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -50,7 +59,10 @@ export function TaskItem({ task, onStatusChange, onDelete, onFeedback }: TaskIte
               </option>
             ))}
           </select>
-          <button onClick={() => onDelete(task._id)} className="text-sm text-red-600 hover:underline">
+          <button
+            onClick={() => onDelete(task._id)}
+            className="rounded-lg px-2 py-1.5 text-sm font-medium text-rose-500 transition hover:bg-rose-50"
+          >
             Poista
           </button>
         </div>

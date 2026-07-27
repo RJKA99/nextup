@@ -26,40 +26,48 @@ export function LoginPage() {
   }
 
   return (
-    <div className="mx-auto mt-24 max-w-sm rounded-lg border border-slate-200 p-6 shadow-sm">
-      <h1 className="mb-4 text-xl font-semibold text-slate-900">Kirjaudu sisään</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input
-          type="email"
-          required
-          placeholder="Sähköposti"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="rounded border border-slate-300 px-3 py-2"
-        />
-        <input
-          type="password"
-          required
-          placeholder="Salasana"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="rounded border border-slate-300 px-3 py-2"
-        />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded bg-slate-900 px-3 py-2 text-white disabled:opacity-50"
-        >
-          {submitting ? 'Kirjaudutaan…' : 'Kirjaudu'}
-        </button>
-      </form>
-      <p className="mt-4 text-sm text-slate-600">
-        Ei tiliä?{' '}
-        <Link to="/register" className="text-slate-900 underline">
-          Luo tili
-        </Link>
-      </p>
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-200/50">
+        <div className="mb-6 text-center">
+          <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-lg font-bold text-white shadow-sm">
+            T
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900">Tervetuloa takaisin</h1>
+          <p className="mt-1 text-sm text-slate-500">Kirjaudu sisään jatkaaksesi</p>
+        </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+          <input
+            type="email"
+            required
+            placeholder="Sähköposti"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          />
+          <input
+            type="password"
+            required
+            placeholder="Salasana"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          />
+          {error && <p className="text-sm text-rose-600">{error}</p>}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="mt-1 inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {submitting ? 'Kirjaudutaan…' : 'Kirjaudu'}
+          </button>
+        </form>
+        <p className="mt-6 text-center text-sm text-slate-500">
+          Ei tiliä?{' '}
+          <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-700">
+            Luo tili
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
