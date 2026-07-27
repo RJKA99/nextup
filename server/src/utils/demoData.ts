@@ -1,8 +1,12 @@
+import { Types } from 'mongoose';
+
 function daysFromNow(days: number): Date {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
 }
 
 export function buildDemoTasks(userId: unknown) {
+  const q3ReviewId = new Types.ObjectId();
+
   return [
     {
       userId,
@@ -26,10 +30,34 @@ export function buildDemoTasks(userId: unknown) {
       createdVia: 'user',
     },
     {
+      _id: q3ReviewId,
       userId,
       title: 'Kirjoita Q3-katsaus tiimille',
-      description: 'AI-agentin lisäämä tehtävä - kokeile merkitä valmiiksi ja anna palautetta arviosta',
+      description:
+        'AI-agentin lisäämä tehtävä, pilkottu kahdeksi alitehtäväksi - kokeile merkitä alitehtävä valmiiksi ja anna palautetta arviosta',
       estimatedMinutes: 45,
+      relevance: 4,
+      category: 'kirjoittaminen',
+      deadline: daysFromNow(5),
+      status: 'todo',
+      createdVia: 'agent',
+    },
+    {
+      userId,
+      parentTaskId: q3ReviewId,
+      title: 'Kerää lukuja tiimin dashboardilta',
+      estimatedMinutes: 20,
+      relevance: 4,
+      category: 'kirjoittaminen',
+      deadline: daysFromNow(5),
+      status: 'todo',
+      createdVia: 'agent',
+    },
+    {
+      userId,
+      parentTaskId: q3ReviewId,
+      title: 'Kirjoita yhteenveto ja lähetä tiimille',
+      estimatedMinutes: 25,
       relevance: 4,
       category: 'kirjoittaminen',
       deadline: daysFromNow(5),

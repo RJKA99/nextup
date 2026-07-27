@@ -1,170 +1,39 @@
 import { Router } from 'express';
-import { TaskModel, TASK_STATUSES } from '../models/Task.js';
 import { authenticate } from '../middleware/apiAuth.js';
-import { rankTasks } from '../utils/priority.js';
+import * as taskService from '../services/taskService.js';
 
 export const tasksRouter = Router();
 tasksRouter.use(authenticate);
 
-function parseTaskInput(body: unknown) {
-  const { title, description, estimatedMinutes, relevance, category, deadline } = (body ?? {}) as Record<
-    string,
-    unknown
-  >;
-
-  if (typeof title !== 'string' || title.trim().length === 0) {
-    return { error: 'title is required' } as const;
-  }
-  const minutes = Number(estimatedMinutes);
-  if (!Number.isFinite(minutes) || minutes < 1) {
-    return { error: 'estimatedMinutes must be a positive number' } as const;
-  }
-  const relevanceNum = Number(relevance);
-  if (!Number.isFinite(relevanceNum) || relevanceNum < 1 || relevanceNum > 5) {
-    return { error: 'relevance must be a number between 1 and 5' } as const;
-  }
-  let deadlineDate: Date | null = null;
-  if (deadline) {
-    const parsed = new Date(deadline as string);
-    if (Number.isNaN(parsed.getTime())) {
-      return { error: 'deadline must be a valid date' } as const;
-    }
-    deadlineDate = parsed;
-  }
-
-  return {
-    value: {
-      title: title.trim(),
-      description: typeof description === 'string' ? description.trim() : '',
-      estimatedMinutes: minutes,
-      relevance: relevanceNum,
-      category: typeof category === 'string' ? category.trim() : '',
-      deadline: deadlineDate,
-    },
-  } as const;
-}
-
 tasksRouter.get('/', async (req, res) => {
-  const tasks = await TaskModel.find({ userId: req.userId }).lean();
-  const ranked = rankTasks(tasks);
-  res.json({ tasks: ranked });
+  const tasks = await taskService.listRankedTasks(req.userId!);
+  res.json({ tasks });
 });
 
 tasksRouter.get('/feedback', async (req, res) => {
-  const tasks = await TaskModel.find({
-    userId: req.userId,
-    createdVia: 'agent',
-    estimateRating: { $ne: null },
-  })
-    .select('title category estimatedMinutes actualMinutes relevance estimateRating estimateFeedback createdAt')
-    .sort({ updatedAt: -1 })
-    .lean();
-  res.json({ feedback: tasks });
+  const feedback = await taskService.getFeedbackHistory(req.userId!);
+  res.json({ feedback });
 });
 
 tasksRouter.get('/next', async (req, res) => {
-  const tasks = await TaskModel.find({ userId: req.userId, status: { $ne: 'done' } }).lean();
-  const [top] = rankTasks(tasks);
-  res.json({ task: top ?? null });
-});
-
-tasksRouter.post('/', async (req, res) => {
-  const parsed = parseTaskInput(req.body);
-  if ('error' in parsed) return res.status(400).json({ error: parsed.error });
-
-  const task = await TaskModel.create({
-    ...parsed.value,
-    userId: req.userId,
-    createdVia: req.authMethod === 'apikey' ? 'agent' : 'user',
-    createdByApiKeyId: req.authMethod === 'apikey' ? req.apiKeyId : null,
-  });
-  res.status(201).json({ task });
-});
-
-tasksRouter.patch('/:id', async (req, res) => {
-  const task = await TaskModel.findOne({ _id: req.params.id, userId: req.userId });
-  if (!task) return res.status(404).json({ error: 'Task not found' });
-
-  const {
-    title,
-    description,
-    estimatedMinutes,
-    relevance,
-    category,
-    deadline,
-    status,
-    actualMinutes,
-    estimateRating,
-    estimateFeedback,
-  } = req.body ?? {};
-
-  if (title !== undefined) {
-    if (typeof title !== 'string' || title.trim().length === 0) {
-      return res.status(400).json({ error: 'title must be a non-empty string' });
-    }
-    task.title = title.trim();
-  }
-  if (description !== undefined) task.description = String(description);
-  if (estimatedMinutes !== undefined) {
-    const minutes = Number(estimatedMinutes);
-    if (!Number.isFinite(minutes) || minutes < 1) {
-      return res.status(400).json({ error: 'estimatedMinutes must be a positive number' });
-    }
-    task.estimatedMinutes = minutes;
-  }
-  if (relevance !== undefined) {
-    const relevanceNum = Number(relevance);
-    if (!Number.isFinite(relevanceNum) || relevanceNum < 1 || relevanceNum > 5) {
-      return res.status(400).json({ error: 'relevance must be a number between 1 and 5' });
-    }
-    task.relevance = relevanceNum;
-  }
-  if (category !== undefined) task.category = String(category).trim();
-  if (deadline !== undefined) {
-    if (deadline === null) {
-      task.deadline = null;
-    } else {
-      const parsed = new Date(deadline);
-      if (Number.isNaN(parsed.getTime())) {
-        return res.status(400).json({ error: 'deadline must be a valid date' });
-      }
-      task.deadline = parsed;
-    }
-  }
-  if (status !== undefined) {
-    if (!TASK_STATUSES.includes(status)) {
-      return res.status(400).json({ error: `status must be one of ${TASK_STATUSES.join(', ')}` });
-    }
-    task.status = status;
-  }
-  if (actualMinutes !== undefined) {
-    const minutes = Number(actualMinutes);
-    if (!Number.isFinite(minutes) || minutes < 1) {
-      return res.status(400).json({ error: 'actualMinutes must be a positive number' });
-    }
-    task.actualMinutes = minutes;
-  }
-  if (estimateRating !== undefined) {
-    const rating = Number(estimateRating);
-    if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
-      return res.status(400).json({ error: 'estimateRating must be a number between 1 and 5' });
-    }
-    task.estimateRating = rating;
-  }
-  if (estimateFeedback !== undefined) task.estimateFeedback = String(estimateFeedback);
-
-  if (task.estimateRating !== null && task.estimateRating !== undefined && task.estimateRating <= 3 && !task.estimateFeedback) {
-    return res
-      .status(400)
-      .json({ error: 'estimateFeedback is required when estimateRating is 3 or lower, so agents learn why' });
-  }
-
-  await task.save();
+  const task = await taskService.getNextTask(req.userId!);
   res.json({ task });
 });
 
+tasksRouter.post('/', async (req, res) => {
+  const result = await taskService.createTask(req.userId!, req.body ?? {}, req.authMethod, req.apiKeyId);
+  if (!result.ok) return res.status(result.status).json({ error: result.error });
+  res.status(201).json({ task: result.value });
+});
+
+tasksRouter.patch('/:id', async (req, res) => {
+  const result = await taskService.updateTask(req.userId!, req.params.id, req.body ?? {});
+  if (!result.ok) return res.status(result.status).json({ error: result.error });
+  res.json({ task: result.value });
+});
+
 tasksRouter.delete('/:id', async (req, res) => {
-  const result = await TaskModel.deleteOne({ _id: req.params.id, userId: req.userId });
-  if (result.deletedCount === 0) return res.status(404).json({ error: 'Task not found' });
+  const deleted = await taskService.deleteTask(req.userId!, req.params.id);
+  if (!deleted) return res.status(404).json({ error: 'Task not found' });
   res.status(204).send();
 });

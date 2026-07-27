@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import type { Task } from '../types';
 
 export interface TaskFormValues {
   title: string;
@@ -7,9 +8,11 @@ export interface TaskFormValues {
   relevance: number;
   category: string;
   deadline: string;
+  parentTaskId: string;
 }
 
 interface TaskFormProps {
+  parentOptions: Task[];
   onSubmit: (values: TaskFormValues) => Promise<void>;
 }
 
@@ -20,12 +23,13 @@ const EMPTY: TaskFormValues = {
   relevance: 3,
   category: '',
   deadline: '',
+  parentTaskId: '',
 };
 
 const inputClass =
   'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30';
 
-export function TaskForm({ onSubmit }: TaskFormProps) {
+export function TaskForm({ parentOptions, onSubmit }: TaskFormProps) {
   const [values, setValues] = useState<TaskFormValues>(EMPTY);
   const [submitting, setSubmitting] = useState(false);
 
@@ -57,12 +61,26 @@ export function TaskForm({ onSubmit }: TaskFormProps) {
         className={`${inputClass} resize-none`}
         rows={2}
       />
-      <input
-        placeholder="Kategoria (valinnainen, esim. kirjoittaminen)"
-        value={values.category}
-        onChange={(e) => setValues((v) => ({ ...v, category: e.target.value }))}
-        className={inputClass}
-      />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <input
+          placeholder="Kategoria (valinnainen, esim. kirjoittaminen)"
+          value={values.category}
+          onChange={(e) => setValues((v) => ({ ...v, category: e.target.value }))}
+          className={inputClass}
+        />
+        <select
+          value={values.parentTaskId}
+          onChange={(e) => setValues((v) => ({ ...v, parentTaskId: e.target.value }))}
+          className={inputClass}
+        >
+          <option value="">Ei ylätehtävää</option>
+          {parentOptions.map((task) => (
+            <option key={task._id} value={task._id}>
+              Alitehtävä: {task.title}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <label className="flex flex-col gap-1 text-xs font-medium text-slate-500">
           Kesto (min)

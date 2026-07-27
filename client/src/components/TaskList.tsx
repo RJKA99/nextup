@@ -18,16 +18,35 @@ export function TaskList({ tasks, onStatusChange, onDelete, onFeedback }: TaskLi
     );
   }
 
+  const topLevel = tasks.filter((t) => !t.parentTaskId);
+  const childrenByParent = new Map<string, Task[]>();
+  for (const task of tasks) {
+    if (task.parentTaskId) {
+      const siblings = childrenByParent.get(task.parentTaskId) ?? [];
+      siblings.push(task);
+      childrenByParent.set(task.parentTaskId, siblings);
+    }
+  }
+
   return (
     <ul className="flex flex-col gap-2">
-      {tasks.map((task) => (
-        <TaskItem
-          key={task._id}
-          task={task}
-          onStatusChange={onStatusChange}
-          onDelete={onDelete}
-          onFeedback={onFeedback}
-        />
+      {topLevel.map((task) => (
+        <li key={task._id} className="list-none">
+          <div className="flex flex-col gap-2">
+            <TaskItem task={task} onStatusChange={onStatusChange} onDelete={onDelete} onFeedback={onFeedback} />
+            {(childrenByParent.get(task._id) ?? []).map((child) => (
+              <div key={child._id} className="ml-6">
+                <TaskItem
+                  task={child}
+                  isSubtask
+                  onStatusChange={onStatusChange}
+                  onDelete={onDelete}
+                  onFeedback={onFeedback}
+                />
+              </div>
+            ))}
+          </div>
+        </li>
       ))}
     </ul>
   );

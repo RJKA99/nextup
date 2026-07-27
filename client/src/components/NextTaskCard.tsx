@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import type { Task } from '../types';
+import { explainScore } from '../utils/explainScore';
 
 interface NextTaskCardProps {
   task: Task | null;
 }
 
 export function NextTaskCard({ task }: NextTaskCardProps) {
+  const [showWhy, setShowWhy] = useState(false);
+
   if (!task) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
@@ -28,6 +32,14 @@ export function NextTaskCard({ task }: NextTaskCardProps) {
           </span>
         )}
       </div>
+      <button
+        type="button"
+        onClick={() => setShowWhy((v) => !v)}
+        className="mt-3 text-xs font-medium text-indigo-200 underline decoration-dotted hover:text-white"
+      >
+        {showWhy ? 'Piilota selitys' : 'Miksi tämä on seuraavaksi?'}
+      </button>
+      {showWhy && <p className="mt-2 text-sm leading-relaxed text-indigo-100">{explainScore(task)}</p>}
     </div>
   );
 }

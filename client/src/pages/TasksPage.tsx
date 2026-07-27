@@ -64,7 +64,7 @@ export function TasksPage() {
         </div>
 
         <div className="mb-8">
-          <TaskForm onSubmit={handleCreate} />
+          <TaskForm parentOptions={tasks.filter((t) => !t.parentTaskId)} onSubmit={handleCreate} />
         </div>
 
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Kaikki tehtävät</h2>

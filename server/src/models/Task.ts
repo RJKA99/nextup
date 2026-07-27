@@ -9,6 +9,7 @@ export type TaskSource = (typeof TASK_SOURCES)[number];
 const taskSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    parentTaskId: { type: Schema.Types.ObjectId, ref: 'Task', default: null, index: true },
     title: { type: String, required: true, trim: true },
     description: { type: String, trim: true, default: '' },
     estimatedMinutes: { type: Number, required: true, min: 1 },

@@ -8,8 +8,9 @@ Click **"✨ Kokeile demoa ilman tunnuksia"** on the login page — it instantly
 
 ## What it does
 
-- **Priority scoring** — every task has an estimated duration, a relevance rating (1–5), and an optional deadline. A scoring function combines deadline urgency with relevance to rank tasks and surface a single "do this next" recommendation, instead of leaving you to stare at a flat list.
-- **AI agent integration (MCP)** — a standalone [Model Context Protocol](https://modelcontextprotocol.io) server lets agents (Claude Desktop, Claude Code, or anything MCP-compatible) create and update tasks on your behalf, authenticated with a per-user API key you generate from the app.
+- **Priority scoring** — every task has an estimated duration, a relevance rating (1–5), and an optional deadline. A scoring function combines deadline urgency with relevance to rank tasks and surface a single "do this next" recommendation, instead of leaving you to stare at a flat list. A "Miksi?" toggle on every task shows the breakdown (relevance component + urgency component = score) rather than a bare, unexplained number.
+- **Subtasks** — any task (manually or via an agent) can be split into subtasks via `parentTaskId`, so a big vague task becomes several small, well-estimated ones instead of one uncertain guess.
+- **AI agent integration (MCP)** — agents (Claude Desktop, Claude Code, or anything MCP-compatible) create and update tasks on your behalf, authenticated with a per-user API key. Two transports are available: a stdio server for local agent clients, and a remote Streamable HTTP endpoint (`/api/mcp`) for hosted/remote agents — both expose the same tools.
 - **Feedback loop for agents** — when an agent-created task is completed, the app asks you to rate how accurate its time/relevance estimate was. Low ratings (≤3) require a short comment explaining why, so agents pull back richer signal than a bare number — enough to actually reason about what kinds of work they systematically under- or over-estimate.
 
 ## Tech stack
@@ -20,7 +21,7 @@ Click **"✨ Kokeile demoa ilman tunnuksia"** on the login page — it instantly
 | Backend | Express + TypeScript, deployed as a single Vercel Function |
 | Database | MongoDB Atlas (Mongoose) |
 | Auth | Custom JWT in an httpOnly cookie (not localStorage — see [Security notes](#security-notes)) |
-| Agent integration | `@modelcontextprotocol/sdk`, stdio transport |
+| Agent integration | `@modelcontextprotocol/sdk`, stdio (local) + Streamable HTTP (remote) transports |
 | Hosting | Vercel |
 
 ## Repository layout
@@ -28,9 +29,12 @@ Click **"✨ Kokeile demoa ilman tunnuksia"** on the login page — it instantly
 ```
 todo-scheduler/
 ├── api/            Vercel Function entrypoint (wraps the Express app)
-├── server/         Express + TypeScript backend (routes, models, priority logic)
+├── server/         Express + TypeScript backend
+│   ├── services/   Task business logic, shared by REST routes and the embedded MCP server
+│   ├── mcp/        Embedded MCP server (used by the /api/mcp Streamable HTTP route)
+│   └── routes/     REST routes + /api/mcp
 ├── client/         React + TypeScript + Tailwind frontend
-├── mcp-server/     Standalone MCP server for AI agents
+├── mcp-server/     Standalone stdio MCP server for local agent clients (Claude Desktop, etc.)
 └── vercel.ts       Routing/build config for Vercel
 ```
 
@@ -55,14 +59,19 @@ score = 0.5 × (relevance / 5) + 0.5 × urgency
 | `/api/tasks/:id` | PATCH / DELETE | cookie or API key | Update (status, feedback, etc.) / delete a task |
 | `/api/api-keys` | GET / POST | cookie | List / generate agent API keys |
 | `/api/api-keys/:id` | DELETE | cookie | Revoke a key |
+| `/api/mcp` | POST | cookie or API key | Remote MCP endpoint (Streamable HTTP, stateless) |
 
 Web sessions authenticate via an httpOnly cookie; agents authenticate via a `tsk_...` bearer token in the `Authorization` header. Both paths converge on the same `req.userId`, so task logic doesn't need to know which one it's talking to.
 
 ## Using the MCP server
 
+Both transports expose the same five tools: `list_tasks`, `get_next_task`, `create_task` (with optional `parentTaskId` for subtasks), `update_task_status`, and `get_estimate_feedback`.
+
+**Option A — local (stdio)**, for Claude Desktop or Claude Code running on your machine:
+
 1. Log in, go to **API-avaimet** (API keys), and generate a key.
 2. Build the MCP server: `npm run build -w mcp-server`.
-3. Point your MCP client at it, e.g. in Claude Desktop's config:
+3. Point your MCP client at it:
 
 ```json
 {
@@ -79,7 +88,20 @@ Web sessions authenticate via an httpOnly cookie; agents authenticate via a `tsk
 }
 ```
 
-The server exposes `list_tasks`, `get_next_task`, `create_task`, `update_task_status`, and `get_estimate_feedback`.
+**Option B — remote (Streamable HTTP)**, for hosted agents or any MCP client that speaks HTTP directly, with no local process to run:
+
+```json
+{
+  "mcpServers": {
+    "todo-scheduler": {
+      "url": "https://todo-scheduler-kappa.vercel.app/api/mcp",
+      "headers": { "Authorization": "Bearer tsk_..." }
+    }
+  }
+}
+```
+
+This endpoint runs statelessly inside the same Vercel Function as the REST API (`server/src/routes/mcp.ts`) — each request builds a fresh `McpServer` bound to the caller's `userId` and calls the task service directly, with no HTTP round-trip back to itself.
 
 ## Security notes
 
@@ -102,4 +124,5 @@ The client dev server proxies `/api/*` to the local Express server, so both run 
 
 - Demo accounts (`/api/auth/demo`) aren't automatically purged — fine for a portfolio demo, would need a cleanup job for real multi-tenant use.
 - No password reset flow.
-- MCP transport is stdio-only (local agent clients); no remote/HTTP MCP transport yet.
+- The remote MCP endpoint authenticates with a static API key (bearer token), not OAuth — fine for a single user connecting their own agent, but not a multi-tenant "connect your account" flow.
+- No automated tests yet.

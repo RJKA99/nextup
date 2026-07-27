@@ -3,6 +3,7 @@ export type TaskSource = 'user' | 'agent';
 
 export interface Task {
   _id: string;
+  parentTaskId: string | null;
   title: string;
   description: string;
   estimatedMinutes: number;
@@ -11,6 +12,10 @@ export interface Task {
   deadline: string | null;
   status: TaskStatus;
   score: number;
+  relevanceComponent: number;
+  urgencyComponent: number;
+  daysUntilDeadline: number | null;
+  isOverdue: boolean;
   createdVia: TaskSource;
   actualMinutes: number | null;
   estimateRating: number | null;

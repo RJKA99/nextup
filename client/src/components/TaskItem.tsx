@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import type { Task, TaskStatus } from '../types';
 import { TaskFeedbackForm, type FeedbackValues } from './TaskFeedbackForm';
+import { explainScore } from '../utils/explainScore';
 
 interface TaskItemProps {
   task: Task;
+  isSubtask?: boolean;
   onStatusChange: (id: string, status: TaskStatus) => void;
   onDelete: (id: string) => void;
   onFeedback: (id: string, values: FeedbackValues) => Promise<void>;
@@ -20,14 +23,20 @@ function scoreBadgeClass(score: number): string {
   return 'bg-slate-100 text-slate-600';
 }
 
-export function TaskItem({ task, onStatusChange, onDelete, onFeedback }: TaskItemProps) {
+export function TaskItem({ task, isSubtask, onStatusChange, onDelete, onFeedback }: TaskItemProps) {
+  const [showWhy, setShowWhy] = useState(false);
   const needsFeedback = task.status === 'done' && task.createdVia === 'agent' && task.estimateRating === null;
 
   return (
-    <li className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+    <div
+      className={`flex flex-col gap-2 rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md ${
+        isSubtask ? 'border-slate-100 bg-slate-50/60' : 'border-slate-200'
+      }`}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
+            {isSubtask && <span className="text-slate-300">↳</span>}
             <p className={`font-semibold text-slate-900 ${task.status === 'done' ? 'line-through opacity-50' : ''}`}>
               {task.title}
             </p>
@@ -46,6 +55,14 @@ export function TaskItem({ task, onStatusChange, onDelete, onFeedback }: TaskIte
             {task.deadline ? ` · deadline ${new Date(task.deadline).toLocaleDateString('fi-FI')}` : ''}
             {task.estimateRating !== null ? ` · palaute ${task.estimateRating}/5` : ''}
           </p>
+          <button
+            type="button"
+            onClick={() => setShowWhy((v) => !v)}
+            className="mt-1 text-xs font-medium text-slate-400 underline decoration-dotted hover:text-slate-700"
+          >
+            {showWhy ? 'Piilota selitys' : 'Miksi?'}
+          </button>
+          {showWhy && <p className="mt-1 text-xs leading-relaxed text-slate-500">{explainScore(task)}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <select
@@ -73,6 +90,6 @@ export function TaskItem({ task, onStatusChange, onDelete, onFeedback }: TaskIte
           onSubmit={(values) => onFeedback(task._id, values)}
         />
       )}
-    </li>
+    </div>
   );
 }

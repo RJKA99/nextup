@@ -12,7 +12,12 @@ interface Task {
   category: string;
   deadline: string | null;
   status: 'todo' | 'in_progress' | 'done';
+  parentTaskId: string | null;
   score: number;
+  relevanceComponent: number;
+  urgencyComponent: number;
+  daysUntilDeadline: number | null;
+  isOverdue: boolean;
 }
 
 function textResult(value: unknown) {
@@ -26,7 +31,9 @@ server.registerTool(
   {
     title: 'List tasks',
     description:
-      "List the user's tasks, ranked by priority score (deadline urgency + relevance). Highest score first.",
+      "List the user's tasks, ranked by priority score (deadline urgency + relevance). Highest score " +
+      'first. Each task includes a score breakdown (relevanceComponent, urgencyComponent, ' +
+      'daysUntilDeadline) explaining why it ranked where it did, and parentTaskId if it is a subtask.',
     inputSchema: {
       status: z
         .enum(['todo', 'in_progress', 'done'])
@@ -45,7 +52,9 @@ server.registerTool(
   'get_next_task',
   {
     title: 'Get next task',
-    description: "Get the single highest-priority open task the user should work on next.",
+    description:
+      'Get the single highest-priority open task the user should work on next, with a score breakdown ' +
+      'explaining why (relevanceComponent + urgencyComponent = score).',
     inputSchema: {},
   },
   async () => {
@@ -59,10 +68,11 @@ server.registerTool(
   {
     title: 'Create task',
     description:
-      'Create a new task on the user\'s schedule. Estimate duration and relevance honestly - the user ' +
-      'will rate how accurate your estimates were, so calibrated estimates matter more than optimistic ones. ' +
-      'Before estimating, call get_estimate_feedback and check for past tasks with a similar category or ' +
-      'title - use their actualMinutes vs estimatedMinutes to calibrate this estimate.',
+      'Create a new task, or a subtask of an existing one via parentTaskId - use this to split a large ' +
+      'task into smaller, better-estimated pieces instead of one big uncertain estimate. Estimate ' +
+      'duration and relevance honestly: the user rates your estimates, so calibrated numbers matter ' +
+      'more than optimistic ones. Call get_estimate_feedback first and check for similar past tasks ' +
+      '(by category or title) to calibrate this one.',
     inputSchema: {
       title: z.string().min(1).describe('Short task title'),
       description: z.string().optional().describe('Optional longer description'),
@@ -80,12 +90,24 @@ server.registerTool(
         .string()
         .optional()
         .describe('ISO 8601 date the task must be done by, e.g. "2026-08-01". Omit if there is no deadline.'),
+      parentTaskId: z
+        .string()
+        .optional()
+        .describe('The _id of an existing task to attach this as a subtask of, when splitting up bigger work.'),
     },
   },
-  async ({ title, description, estimatedMinutes, relevance, category, deadline }) => {
+  async ({ title, description, estimatedMinutes, relevance, category, deadline, parentTaskId }) => {
     const res = await apiRequest<{ task: Task }>('/tasks', {
       method: 'POST',
-      body: JSON.stringify({ title, description, estimatedMinutes, relevance, category, deadline: deadline ?? null }),
+      body: JSON.stringify({
+        title,
+        description,
+        estimatedMinutes,
+        relevance,
+        category,
+        deadline: deadline ?? null,
+        parentTaskId,
+      }),
     });
     return textResult(res.task);
   }
