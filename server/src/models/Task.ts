@@ -13,6 +13,7 @@ const taskSchema = new Schema(
     description: { type: String, trim: true, default: '' },
     estimatedMinutes: { type: Number, required: true, min: 1 },
     relevance: { type: Number, required: true, min: 1, max: 5 },
+    category: { type: String, trim: true, default: '' },
     deadline: { type: Date, default: null },
     status: { type: String, enum: TASK_STATUSES, default: 'todo' },
     createdVia: { type: String, enum: TASK_SOURCES, default: 'user' },

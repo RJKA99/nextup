@@ -5,6 +5,7 @@ export interface TaskFormValues {
   description: string;
   estimatedMinutes: number;
   relevance: number;
+  category: string;
   deadline: string;
 }
 
@@ -12,7 +13,14 @@ interface TaskFormProps {
   onSubmit: (values: TaskFormValues) => Promise<void>;
 }
 
-const EMPTY: TaskFormValues = { title: '', description: '', estimatedMinutes: 30, relevance: 3, deadline: '' };
+const EMPTY: TaskFormValues = {
+  title: '',
+  description: '',
+  estimatedMinutes: 30,
+  relevance: 3,
+  category: '',
+  deadline: '',
+};
 
 export function TaskForm({ onSubmit }: TaskFormProps) {
   const [values, setValues] = useState<TaskFormValues>(EMPTY);
@@ -45,6 +53,12 @@ export function TaskForm({ onSubmit }: TaskFormProps) {
         onChange={(e) => setValues((v) => ({ ...v, description: e.target.value }))}
         className="rounded border border-slate-300 px-3 py-2"
         rows={2}
+      />
+      <input
+        placeholder="Kategoria (valinnainen, esim. kirjoittaminen)"
+        value={values.category}
+        onChange={(e) => setValues((v) => ({ ...v, category: e.target.value }))}
+        className="rounded border border-slate-300 px-3 py-2"
       />
       <div className="grid grid-cols-3 gap-3">
         <label className="flex flex-col text-sm text-slate-600">

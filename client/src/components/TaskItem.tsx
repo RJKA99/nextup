@@ -30,6 +30,7 @@ export function TaskItem({ task, onStatusChange, onDelete, onFeedback }: TaskIte
             )}
           </p>
           <p className="truncate text-sm text-slate-500">
+            {task.category ? `${task.category} · ` : ''}
             {task.estimatedMinutes} min · relevanssi {task.relevance}/5
             {task.deadline ? ` · deadline ${new Date(task.deadline).toLocaleDateString('fi-FI')}` : ''}
             {' · pisteet '}

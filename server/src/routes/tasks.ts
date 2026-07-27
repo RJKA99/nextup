@@ -7,7 +7,10 @@ export const tasksRouter = Router();
 tasksRouter.use(authenticate);
 
 function parseTaskInput(body: unknown) {
-  const { title, description, estimatedMinutes, relevance, deadline } = (body ?? {}) as Record<string, unknown>;
+  const { title, description, estimatedMinutes, relevance, category, deadline } = (body ?? {}) as Record<
+    string,
+    unknown
+  >;
 
   if (typeof title !== 'string' || title.trim().length === 0) {
     return { error: 'title is required' } as const;
@@ -35,6 +38,7 @@ function parseTaskInput(body: unknown) {
       description: typeof description === 'string' ? description.trim() : '',
       estimatedMinutes: minutes,
       relevance: relevanceNum,
+      category: typeof category === 'string' ? category.trim() : '',
       deadline: deadlineDate,
     },
   } as const;
@@ -52,7 +56,7 @@ tasksRouter.get('/feedback', async (req, res) => {
     createdVia: 'agent',
     estimateRating: { $ne: null },
   })
-    .select('title estimatedMinutes actualMinutes relevance estimateRating estimateFeedback createdAt')
+    .select('title category estimatedMinutes actualMinutes relevance estimateRating estimateFeedback createdAt')
     .sort({ updatedAt: -1 })
     .lean();
   res.json({ feedback: tasks });
@@ -81,8 +85,18 @@ tasksRouter.patch('/:id', async (req, res) => {
   const task = await TaskModel.findOne({ _id: req.params.id, userId: req.userId });
   if (!task) return res.status(404).json({ error: 'Task not found' });
 
-  const { title, description, estimatedMinutes, relevance, deadline, status, actualMinutes, estimateRating, estimateFeedback } =
-    req.body ?? {};
+  const {
+    title,
+    description,
+    estimatedMinutes,
+    relevance,
+    category,
+    deadline,
+    status,
+    actualMinutes,
+    estimateRating,
+    estimateFeedback,
+  } = req.body ?? {};
 
   if (title !== undefined) {
     if (typeof title !== 'string' || title.trim().length === 0) {
@@ -105,6 +119,7 @@ tasksRouter.patch('/:id', async (req, res) => {
     }
     task.relevance = relevanceNum;
   }
+  if (category !== undefined) task.category = String(category).trim();
   if (deadline !== undefined) {
     if (deadline === null) {
       task.deadline = null;
@@ -137,6 +152,12 @@ tasksRouter.patch('/:id', async (req, res) => {
     task.estimateRating = rating;
   }
   if (estimateFeedback !== undefined) task.estimateFeedback = String(estimateFeedback);
+
+  if (task.estimateRating !== null && task.estimateRating !== undefined && task.estimateRating <= 3 && !task.estimateFeedback) {
+    return res
+      .status(400)
+      .json({ error: 'estimateFeedback is required when estimateRating is 3 or lower, so agents learn why' });
+  }
 
   await task.save();
   res.json({ task });

@@ -17,9 +17,12 @@ export function TaskFeedbackForm({ estimatedMinutes, onSubmit }: TaskFeedbackFor
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  const commentRequired = rating > 0 && rating <= 3;
+  const canSubmit = rating >= 1 && (!commentRequired || comment.trim().length > 0);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (rating < 1) return;
+    if (!canSubmit) return;
     setSubmitting(true);
     try {
       await onSubmit({
@@ -61,15 +64,16 @@ export function TaskFeedbackForm({ estimatedMinutes, onSubmit }: TaskFeedbackFor
         />
         <input
           type="text"
-          placeholder="Kommentti (valinnainen)"
+          required={commentRequired}
+          placeholder={commentRequired ? 'Miksi arvio ei osunut? (pakollinen alle 4 tähdellä)' : 'Kommentti (valinnainen)'}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="flex-1 rounded border border-slate-300 px-2 py-1 text-sm"
+          className={`flex-1 rounded border px-2 py-1 text-sm ${commentRequired ? 'border-amber-500' : 'border-slate-300'}`}
         />
       </div>
       <button
         type="submit"
-        disabled={submitting || rating < 1}
+        disabled={submitting || !canSubmit}
         className="self-start rounded bg-slate-900 px-3 py-1.5 text-sm text-white disabled:opacity-50"
       >
         {submitting ? 'Lähetetään…' : 'Lähetä palaute'}

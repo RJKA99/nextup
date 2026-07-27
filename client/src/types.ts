@@ -7,6 +7,7 @@ export interface Task {
   description: string;
   estimatedMinutes: number;
   relevance: number;
+  category: string;
   deadline: string | null;
   status: TaskStatus;
   score: number;

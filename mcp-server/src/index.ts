@@ -9,6 +9,7 @@ interface Task {
   description: string;
   estimatedMinutes: number;
   relevance: number;
+  category: string;
   deadline: string | null;
   status: 'todo' | 'in_progress' | 'done';
   score: number;
@@ -59,22 +60,32 @@ server.registerTool(
     title: 'Create task',
     description:
       'Create a new task on the user\'s schedule. Estimate duration and relevance honestly - the user ' +
-      'will rate how accurate your estimates were, so calibrated estimates matter more than optimistic ones.',
+      'will rate how accurate your estimates were, so calibrated estimates matter more than optimistic ones. ' +
+      'Before estimating, call get_estimate_feedback and check for past tasks with a similar category or ' +
+      'title - use their actualMinutes vs estimatedMinutes to calibrate this estimate.',
     inputSchema: {
       title: z.string().min(1).describe('Short task title'),
       description: z.string().optional().describe('Optional longer description'),
       estimatedMinutes: z.number().int().positive().describe('Estimated time to complete, in minutes'),
       relevance: z.number().int().min(1).max(5).describe('How relevant/important the task is, 1 (low) to 5 (high)'),
+      category: z
+        .string()
+        .optional()
+        .describe(
+          'A short label for the kind of work this is (e.g. "writing", "coding", "meeting-prep"). ' +
+            'Use a consistent, reusable set of categories across tasks - this is what lets ' +
+            'get_estimate_feedback group past accuracy by category so you can calibrate per kind of work.'
+        ),
       deadline: z
         .string()
         .optional()
         .describe('ISO 8601 date the task must be done by, e.g. "2026-08-01". Omit if there is no deadline.'),
     },
   },
-  async ({ title, description, estimatedMinutes, relevance, deadline }) => {
+  async ({ title, description, estimatedMinutes, relevance, category, deadline }) => {
     const res = await apiRequest<{ task: Task }>('/tasks', {
       method: 'POST',
-      body: JSON.stringify({ title, description, estimatedMinutes, relevance, deadline: deadline ?? null }),
+      body: JSON.stringify({ title, description, estimatedMinutes, relevance, category, deadline: deadline ?? null }),
     });
     return textResult(res.task);
   }
@@ -104,9 +115,12 @@ server.registerTool(
   {
     title: 'Get estimate feedback',
     description:
-      "Get the user's feedback on past tasks you created: how you rated the task's duration/relevance " +
-      "(estimatedMinutes, relevance) against what actually happened (actualMinutes) and the user's " +
-      'estimateRating (1-5) and comments. Use this to calibrate future estimates.',
+      "Get the user's feedback on past tasks you created: title, category, your estimate " +
+      '(estimatedMinutes, relevance) against what actually happened (actualMinutes), the user\'s ' +
+      'estimateRating (1-5), and an estimateFeedback comment explaining why the estimate was off ' +
+      '(required from the user whenever they rate 3 or lower). Group by category and look for ' +
+      'recurring words in the title/comments to figure out what kinds of work you systematically ' +
+      'under- or over-estimate.',
     inputSchema: {},
   },
   async () => {
