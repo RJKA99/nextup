@@ -6,9 +6,10 @@ import { ThemeToggle } from './ThemeToggle';
 
 interface AppHeaderProps {
   active?: 'tasks' | 'api-keys';
+  onHelpClick?: () => void;
 }
 
-export function AppHeader({ active }: AppHeaderProps) {
+export function AppHeader({ active, onHelpClick }: AppHeaderProps) {
   const { user, logout } = useAuth();
   const { t } = useLanguage();
 
@@ -46,6 +47,15 @@ export function AppHeader({ active }: AppHeaderProps) {
             <span className="hidden text-slate-400 md:inline dark:text-slate-500">
               {user?.isDemo ? t('header.demoUser') : user?.email}
             </span>
+            {onHelpClick && (
+              <button
+                type="button"
+                onClick={onHelpClick}
+                className="hidden font-medium text-slate-500 transition hover:text-slate-900 sm:inline dark:text-slate-400 dark:hover:text-slate-100"
+              >
+                {t('onboarding.reopen')}
+              </button>
+            )}
             <LanguageToggle />
             <ThemeToggle />
             <button

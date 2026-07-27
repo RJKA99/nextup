@@ -5,8 +5,11 @@ import { AppHeader } from '../components/AppHeader';
 import { TaskForm, type TaskFormValues } from '../components/TaskForm';
 import { TaskList } from '../components/TaskList';
 import { NextTaskCard } from '../components/NextTaskCard';
+import { OnboardingCard } from '../components/OnboardingCard';
 import type { FeedbackValues } from '../components/TaskFeedbackForm';
 import type { Task, TaskStatus } from '../types';
+
+const ONBOARDING_KEY = 'nextup:onboarding-dismissed';
 
 export function TasksPage() {
   const { t } = useLanguage();
@@ -14,6 +17,12 @@ export function TasksPage() {
   const [nextTask, setNextTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(() => localStorage.getItem(ONBOARDING_KEY) !== '1');
+
+  function dismissOnboarding() {
+    localStorage.setItem(ONBOARDING_KEY, '1');
+    setShowOnboarding(false);
+  }
 
   const refresh = useCallback(async () => {
     try {
@@ -59,8 +68,14 @@ export function TasksPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      <AppHeader active="tasks" />
+      <AppHeader active="tasks" onHelpClick={() => setShowOnboarding(true)} />
       <main className="mx-auto max-w-3xl px-4 py-8">
+        {showOnboarding && (
+          <div className="mb-6">
+            <OnboardingCard onDismiss={dismissOnboarding} />
+          </div>
+        )}
+
         <div className="mb-6">
           <NextTaskCard task={nextTask} />
         </div>

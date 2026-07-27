@@ -2,6 +2,35 @@ export type Locale = 'en' | 'fi';
 
 export const translations: Record<Locale, Record<string, string>> = {
   en: {
+    'landing.kicker': 'AI-agent-ready task manager',
+    'landing.headline': 'Know what to do next.',
+    'landing.subheadline':
+      "NextUp ranks your tasks by urgency and relevance so you're never guessing what to work on — and lets AI agents plan and schedule work for you, rated on how well they estimated it.",
+    'landing.previewTask': 'Finish the Q3 report',
+    'landing.feature1Title': 'Priority scoring',
+    'landing.feature1Body':
+      "Duration, relevance, and deadline combine into a single score, so there's always one clear answer to \"what's next\" instead of a flat list to stare at.",
+    'landing.feature2Title': 'AI agents welcome',
+    'landing.feature2Body':
+      'Claude Desktop, Claude Code, or any MCP client can create, split into subtasks, and schedule work on your behalf.',
+    'landing.feature3Title': 'Feedback loop',
+    'landing.feature3Body':
+      "Rate how accurate an agent's time and relevance estimate was. Low scores require a reason, so agents get sharper over time.",
+
+    'onboarding.title': 'How NextUp works',
+    'onboarding.reopen': 'How it works',
+    'onboarding.dismiss': 'Got it',
+    'onboarding.step1Title': '1. Add a task',
+    'onboarding.step1Body': 'Give it a duration, a relevance rating (1–5), and an optional deadline.',
+    'onboarding.step2Title': '2. "Do this next" picks itself',
+    'onboarding.step2Body':
+      'The priority engine combines urgency and relevance into one score, and always surfaces the single best task to work on right now. Tap "Why?" on any task to see the math.',
+    'onboarding.step3Title': '3. Split big tasks',
+    'onboarding.step3Body': 'Turn a vague task into a few small, well-estimated subtasks any time.',
+    'onboarding.step4Title': '4. Connect an AI agent',
+    'onboarding.step4Body':
+      'Generate a key under "API keys" and let Claude Desktop, Claude Code, or any MCP client create and schedule tasks for you — you rate their estimate once the task is done.',
+
     'login.title': 'Welcome back',
     'login.subtitle': 'Sign in to continue',
     'login.demoButton': '✨ Try the demo, no account needed',
@@ -104,6 +133,35 @@ export const translations: Record<Locale, Record<string, string>> = {
     'explain.total': 'Total score {score} (both weighted 50%).',
   },
   fi: {
+    'landing.kicker': 'Tehtävienhallinta, joka puhuu AI-agenteille',
+    'landing.headline': 'Tiedä mitä tehdä seuraavaksi.',
+    'landing.subheadline':
+      'NextUp priorisoi tehtäväsi kiireellisyyden ja relevanssin perusteella, jotta sinun ei tarvitse arvailla — ja antaa AI-agenttien suunnitella ja aikatauluttaa tehtäviä puolestasi, arvioituna siitä kuinka hyvin ne osasivat arvioida työn.',
+    'landing.previewTask': 'Viimeistele Q3-raportti',
+    'landing.feature1Title': 'Priorisointi pisteytyksellä',
+    'landing.feature1Body':
+      'Kesto, relevanssi ja määräaika yhdistyvät yhdeksi pisteluvuksi, joten "mitä seuraavaksi" -kysymykseen on aina yksi selkeä vastaus tasaisen listan tuijottamisen sijaan.',
+    'landing.feature2Title': 'AI-agentit tervetulleita',
+    'landing.feature2Body':
+      'Claude Desktop, Claude Code tai mikä tahansa MCP-yhteensopiva agentti voi luoda, pilkkoa alitehtäviksi ja aikatauluttaa tehtäviä puolestasi.',
+    'landing.feature3Title': 'Palautesilmukka',
+    'landing.feature3Body':
+      'Arvioi kuinka tarkka agentin aika- ja relevanssiarvio oli. Matalat arvosanat vaativat perustelun, joten agentit tarkentuvat ajan myötä.',
+
+    'onboarding.title': 'Näin NextUp toimii',
+    'onboarding.reopen': 'Miten tätä käytetään',
+    'onboarding.dismiss': 'Selvä',
+    'onboarding.step1Title': '1. Lisää tehtävä',
+    'onboarding.step1Body': 'Anna sille kesto, relevanssiarvio (1–5) ja valinnainen määräaika.',
+    'onboarding.step2Title': '2. "Tee seuraavaksi" valikoituu itse',
+    'onboarding.step2Body':
+      'Priorisointimoottori yhdistää kiireellisyyden ja relevanssin yhdeksi pisteluvuksi ja nostaa aina esiin sen yhden parhaan tehtävän juuri nyt. Paina minkä tahansa tehtävän "Miksi?" nähdäksesi laskennan.',
+    'onboarding.step3Title': '3. Pilko isot tehtävät',
+    'onboarding.step3Body': 'Muuta epämääräinen tehtävä muutamaksi pieneksi, hyvin arvioiduksi alitehtäväksi milloin vain.',
+    'onboarding.step4Title': '4. Yhdistä AI-agentti',
+    'onboarding.step4Body':
+      'Luo avain "API-avaimet" -sivulla ja anna Claude Desktopin, Claude Coden tai minkä tahansa MCP-agentin luoda ja aikatauluttaa tehtäviä puolestasi — arvioi niiden arvio kun tehtävä on valmis.',
+
     'login.title': 'Tervetuloa takaisin',
     'login.subtitle': 'Kirjaudu sisään jatkaaksesi',
     'login.demoButton': '✨ Kokeile demoa ilman tunnuksia',
