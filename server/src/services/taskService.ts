@@ -1,14 +1,14 @@
 import { Types } from 'mongoose';
-import { TaskModel, TASK_STATUSES } from '../models/Task.js';
+import { TaskModel, TASK_STATUSES, type Task } from '../models/Task.js';
 import { rankTasks } from '../utils/priority.js';
 
 export type ServiceResult<T> = { ok: true; value: T } | { ok: false; status: number; error: string };
 
-function ok<T>(value: T): ServiceResult<T> {
+function ok<T>(value: T): { ok: true; value: T } {
   return { ok: true, value };
 }
 
-function fail(status: number, error: string): ServiceResult<never> {
+function fail(status: number, error: string): { ok: false; status: number; error: string } {
   return { ok: false, status, error };
 }
 
@@ -92,7 +92,7 @@ export async function createTask(
   input: Record<string, unknown>,
   authMethod: 'jwt' | 'apikey' | undefined,
   apiKeyId: string | undefined
-) {
+): Promise<ServiceResult<Task>> {
   const parsed = await parseTaskInput(userId, input);
   if (!parsed.ok) return parsed;
 
@@ -105,7 +105,11 @@ export async function createTask(
   return ok(task);
 }
 
-export async function updateTask(userId: string, taskId: string, patch: Record<string, unknown>) {
+export async function updateTask(
+  userId: string,
+  taskId: string,
+  patch: Record<string, unknown>
+): Promise<ServiceResult<Task>> {
   const task = await TaskModel.findOne({ _id: taskId, userId });
   if (!task) return fail(404, 'Task not found');
 
