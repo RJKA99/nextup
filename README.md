@@ -2,7 +2,7 @@
 
 A task manager that doesn't just list what you have to do — it tells you what to do **next**, and lets AI agents schedule work on your behalf while you rate how well they estimated it.
 
-**🔗 Live demo: [nextup-todo.vercel.app](https://nextup-todo.vercel.app)**
+**🔗 Live demo: [nextup.robinkarlsson.fi](https://nextup.robinkarlsson.fi)**
 
 Click **"✨ Try the demo, no account needed"** on the login page — it instantly logs you into a fresh account pre-loaded with sample tasks (no signup, no email, nothing to remember). You'll see the priority engine, an agent-created task with a badge, and a completed task with feedback already given, all in one view.
 
@@ -82,7 +82,7 @@ Both transports expose the same five tools: `list_tasks`, `get_next_task`, `crea
       "command": "node",
       "args": ["/absolute/path/to/nextup/mcp-server/dist/index.js"],
       "env": {
-        "NEXTUP_API_URL": "https://nextup-todo.vercel.app",
+        "NEXTUP_API_URL": "https://nextup.robinkarlsson.fi",
         "NEXTUP_API_KEY": "tsk_..."
       }
     }
@@ -96,7 +96,7 @@ Both transports expose the same five tools: `list_tasks`, `get_next_task`, `crea
 {
   "mcpServers": {
     "nextup": {
-      "url": "https://nextup-todo.vercel.app/api/mcp",
+      "url": "https://nextup.robinkarlsson.fi/api/mcp",
       "headers": { "Authorization": "Bearer tsk_..." }
     }
   }
